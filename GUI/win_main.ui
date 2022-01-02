@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>896</width>
-    <height>784</height>
+    <width>1200</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,9 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QStackedWidget" name="pageswitcher">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
       <widget class="QWidget" name="view_overview"/>
       <widget class="QWidget" name="view_table">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -36,7 +39,17 @@
          </widget>
         </item>
         <item>
-         <widget class="QTableWidget" name="table_tableview"/>
+         <widget class="QTableWidget" name="table_tableview">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QAbstractScrollArea::AdjustToContents</enum>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -49,7 +62,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>896</width>
+     <width>1200</width>
      <height>20</height>
     </rect>
    </property>

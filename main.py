@@ -1,5 +1,5 @@
 from csv import reader
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
 from GUI.win_main import Ui_win_main
 
 windowtitle = "RC-Car Viewer"
@@ -27,6 +27,13 @@ class WinMain(QMainWindow, Ui_win_main):
         try:
             datafile = open(filepath[0], 'r')
             data = list(reader(datafile))
+            self.table_tableview.setRowCount(len(data))
+            self.table_tableview.setColumnCount(len(data[1]))
+            for xloop in range(len(data)):
+                for yloop in range(len(data[xloop])):
+                    self.table_tableview.setItem(xloop, yloop, QTableWidgetItem(str(data[xloop][yloop])))
+            self.table_tableview.resizeColumnsToContents()
+
         except:
             print("Error reading file (No File selected?)")
 

@@ -16,15 +16,16 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QHeaderView, QLabel, QMainWindow,
-    QMenu, QMenuBar, QSizePolicy, QStackedWidget,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QHeaderView, QLabel,
+                               QMainWindow, QMenu, QMenuBar, QSizePolicy,
+                               QStackedWidget, QTableWidget, QTableWidgetItem, QVBoxLayout,
+                               QWidget, QAbstractItemView)
 
 class Ui_win_main(object):
     def setupUi(self, win_main):
         if not win_main.objectName():
             win_main.setObjectName(u"win_main")
-        win_main.resize(896, 784)
+        win_main.resize(1200, 800)
         self.actionBeenden = QAction(win_main)
         self.actionBeenden.setObjectName(u"actionBeenden")
         self.action_ffnen = QAction(win_main)
@@ -61,6 +62,9 @@ class Ui_win_main(object):
 
         self.table_tableview = QTableWidget(self.view_table)
         self.table_tableview.setObjectName(u"table_tableview")
+        self.table_tableview.setEnabled(True)
+        self.table_tableview.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.table_tableview.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         self.verticalLayout_3.addWidget(self.table_tableview)
 
@@ -71,7 +75,7 @@ class Ui_win_main(object):
         win_main.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(win_main)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 896, 20))
+        self.menubar.setGeometry(QRect(0, 0, 1200, 20))
         self.menuDatei = QMenu(self.menubar)
         self.menuDatei.setObjectName(u"menuDatei")
         self.menuFenster = QMenu(self.menubar)
@@ -89,6 +93,9 @@ class Ui_win_main(object):
         self.menuFenster.addAction(self.actionTable_View)
 
         self.retranslateUi(win_main)
+
+        self.pageswitcher.setCurrentIndex(1)
+
 
         QMetaObject.connectSlotsByName(win_main)
     # setupUi
