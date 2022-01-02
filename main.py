@@ -4,7 +4,6 @@ from GUI.win_main import Ui_win_main
 
 windowtitle = "RC-Car Viewer"
 
-
 class WinMain(QMainWindow, Ui_win_main):
     def __init__(self):
         super().__init__()
@@ -27,11 +26,12 @@ class WinMain(QMainWindow, Ui_win_main):
         try:
             datafile = open(filepath[0], 'r')
             data = list(reader(datafile))
-            self.table_tableview.setRowCount(len(data))
+            self.table_tableview.setRowCount(len(data)-1)
             self.table_tableview.setColumnCount(len(data[1]))
-            for xloop in range(len(data)):
+            self.table_tableview.setHorizontalHeaderLabels(data[0])
+            for xloop in range(1, len(data)):
                 for yloop in range(len(data[xloop])):
-                    self.table_tableview.setItem(xloop, yloop, QTableWidgetItem(str(data[xloop][yloop])))
+                    self.table_tableview.setItem(xloop-1, yloop, QTableWidgetItem(str(data[xloop][yloop])))
             self.table_tableview.resizeColumnsToContents()
 
         except:

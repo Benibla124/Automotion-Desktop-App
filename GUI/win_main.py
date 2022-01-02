@@ -94,7 +94,7 @@ class Ui_win_main(object):
 
         self.retranslateUi(win_main)
 
-        self.pageswitcher.setCurrentIndex(1)
+        self.pageswitcher.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(win_main)
