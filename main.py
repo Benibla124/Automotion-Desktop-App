@@ -1,8 +1,10 @@
 from csv import reader
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem
 from GUI.win_main import Ui_win_main
+import numpy as np
 
 windowtitle = "RC-Car Viewer"
+
 
 class WinMain(QMainWindow, Ui_win_main):
     def __init__(self):
@@ -11,9 +13,14 @@ class WinMain(QMainWindow, Ui_win_main):
         self.setWindowTitle(windowtitle)
         self.actionBeenden.triggered.connect(self.close)
         self.action_ffnen.triggered.connect(self.openfile)
+
         self.actionVollbild.triggered.connect(self.toggle_fullscreen)
         self.actionOverview.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(0))
         self.actionTable_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(1))
+        self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))
+
+    def plot(self, x, y):
+        self.graphWidget.plot(x, y)
 
     def toggle_fullscreen(self):
         if self.isFullScreen():
@@ -25,14 +32,21 @@ class WinMain(QMainWindow, Ui_win_main):
         filepath = QFileDialog.getOpenFileName(self, self.tr("Open Data"), "/home", self.tr("*.txt *.csv"))
         try:
             datafile = open(filepath[0], 'r')
-            data = list(reader(datafile))
+            data = np.array(list(reader(datafile)))
             self.table_tableview.setRowCount(len(data)-1)
-            self.table_tableview.setColumnCount(len(data[1]))
-            self.table_tableview.setHorizontalHeaderLabels(data[0])
-            for xloop in range(1, len(data)):
-                for yloop in range(len(data[xloop])):
-                    self.table_tableview.setItem(xloop-1, yloop, QTableWidgetItem(str(data[xloop][yloop])))
+            self.table_tableview.setColumnCount(len(data[1])-1)
+            self.table_tableview.setHorizontalHeaderLabels(data[0][1:])
+            self.table_tableview.setVerticalHeaderLabels(data[1:, 0])
+            data = data[1:, 1:]
+
+            for yloop in range(len(data)):
+                for xloop in range(len(data[yloop])):
+                    self.table_tableview.setItem(yloop, xloop, QTableWidgetItem(str(data[yloop][xloop])))
             self.table_tableview.resizeColumnsToContents()
+
+            data = np.asarray(data, dtype=float)
+
+            self.plot(data[:, 0], data[:, 1])
 
         except:
             print("Error reading file (No File selected?)")

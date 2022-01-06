@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QHeaderView, Q
                                QStackedWidget, QTableWidget, QTableWidgetItem, QVBoxLayout,
                                QWidget, QAbstractItemView)
 
+from pyqtgraph import PlotWidget
+
 class Ui_win_main(object):
     def setupUi(self, win_main):
         if not win_main.objectName():
@@ -38,6 +40,8 @@ class Ui_win_main(object):
         self.actionOverview.setObjectName(u"actionOverview")
         self.actionTable_View = QAction(win_main)
         self.actionTable_View.setObjectName(u"actionTable_View")
+        self.actionPlot_View = QAction(win_main)
+        self.actionPlot_View.setObjectName(u"actionPlot_View")
         self.centralwidget = QWidget(win_main)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_2 = QVBoxLayout(self.centralwidget)
@@ -69,6 +73,23 @@ class Ui_win_main(object):
         self.verticalLayout_3.addWidget(self.table_tableview)
 
         self.pageswitcher.addWidget(self.view_table)
+        self.view_plotview = QWidget()
+        self.view_plotview.setObjectName(u"view_plotview")
+        self.verticalLayout_6 = QVBoxLayout(self.view_plotview)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.lab_plotview = QLabel(self.view_plotview)
+        self.lab_plotview.setObjectName(u"lab_plotview")
+        self.lab_plotview.setFont(font)
+        self.lab_plotview.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_6.addWidget(self.lab_plotview)
+
+        self.graphWidget = PlotWidget(self.view_plotview)
+        self.graphWidget.setObjectName(u"graphWidget")
+
+        self.verticalLayout_6.addWidget(self.graphWidget)
+
+        self.pageswitcher.addWidget(self.view_plotview)
 
         self.verticalLayout_2.addWidget(self.pageswitcher)
 
@@ -91,6 +112,7 @@ class Ui_win_main(object):
         self.menuFenster.addSeparator()
         self.menuFenster.addAction(self.actionOverview)
         self.menuFenster.addAction(self.actionTable_View)
+        self.menuFenster.addAction(self.actionPlot_View)
 
         self.retranslateUi(win_main)
 
@@ -107,7 +129,9 @@ class Ui_win_main(object):
         self.actionVollbild.setText(QCoreApplication.translate("win_main", u"Vollbild", None))
         self.actionOverview.setText(QCoreApplication.translate("win_main", u"Overview", None))
         self.actionTable_View.setText(QCoreApplication.translate("win_main", u"Table View", None))
+        self.actionPlot_View.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
+        self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"Datei", None))
         self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Fenster", None))
     # retranslateUi
