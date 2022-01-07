@@ -16,10 +16,10 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QHeaderView, QLabel,
-                               QMainWindow, QMenu, QMenuBar, QSizePolicy,
-                               QStackedWidget, QTableWidget, QTableWidgetItem, QVBoxLayout,
-                               QWidget, QAbstractItemView)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QHBoxLayout, QHeaderView,
+                               QLabel, QMainWindow, QMenu, QMenuBar,
+                               QPushButton, QSizePolicy, QSpacerItem, QStackedWidget,
+                               QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QAbstractItemView)
 
 from pyqtgraph import PlotWidget
 
@@ -77,12 +77,30 @@ class Ui_win_main(object):
         self.view_plotview.setObjectName(u"view_plotview")
         self.verticalLayout_6 = QVBoxLayout(self.view_plotview)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer)
+
         self.lab_plotview = QLabel(self.view_plotview)
         self.lab_plotview.setObjectName(u"lab_plotview")
         self.lab_plotview.setFont(font)
         self.lab_plotview.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_6.addWidget(self.lab_plotview)
+        self.horizontalLayout_2.addWidget(self.lab_plotview)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
+
+        self.PlotSettings = QPushButton(self.view_plotview)
+        self.PlotSettings.setObjectName(u"PlotSettings")
+
+        self.horizontalLayout_2.addWidget(self.PlotSettings)
+
+
+        self.verticalLayout_6.addLayout(self.horizontalLayout_2)
 
         self.graphWidget = PlotWidget(self.view_plotview)
         self.graphWidget.setObjectName(u"graphWidget")
@@ -116,7 +134,7 @@ class Ui_win_main(object):
 
         self.retranslateUi(win_main)
 
-        self.pageswitcher.setCurrentIndex(0)
+        self.pageswitcher.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(win_main)
@@ -125,13 +143,32 @@ class Ui_win_main(object):
     def retranslateUi(self, win_main):
         win_main.setWindowTitle(QCoreApplication.translate("win_main", u"MainWindow", None))
         self.actionBeenden.setText(QCoreApplication.translate("win_main", u"Beenden", None))
+#if QT_CONFIG(shortcut)
+        self.actionBeenden.setShortcut(QCoreApplication.translate("win_main", u"Ctrl+Q", None))
+#endif // QT_CONFIG(shortcut)
         self.action_ffnen.setText(QCoreApplication.translate("win_main", u"\u00d6ffnen", None))
+#if QT_CONFIG(shortcut)
+        self.action_ffnen.setShortcut(QCoreApplication.translate("win_main", u"Ctrl+O", None))
+#endif // QT_CONFIG(shortcut)
         self.actionVollbild.setText(QCoreApplication.translate("win_main", u"Vollbild", None))
+#if QT_CONFIG(shortcut)
+        self.actionVollbild.setShortcut(QCoreApplication.translate("win_main", u"F11", None))
+#endif // QT_CONFIG(shortcut)
         self.actionOverview.setText(QCoreApplication.translate("win_main", u"Overview", None))
+#if QT_CONFIG(shortcut)
+        self.actionOverview.setShortcut(QCoreApplication.translate("win_main", u"O", None))
+#endif // QT_CONFIG(shortcut)
         self.actionTable_View.setText(QCoreApplication.translate("win_main", u"Table View", None))
+#if QT_CONFIG(shortcut)
+        self.actionTable_View.setShortcut(QCoreApplication.translate("win_main", u"T", None))
+#endif // QT_CONFIG(shortcut)
         self.actionPlot_View.setText(QCoreApplication.translate("win_main", u"Plot View", None))
+#if QT_CONFIG(shortcut)
+        self.actionPlot_View.setShortcut(QCoreApplication.translate("win_main", u"P", None))
+#endif // QT_CONFIG(shortcut)
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
+        self.PlotSettings.setText(QCoreApplication.translate("win_main", u"Plot Settings", None))
         self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"Datei", None))
         self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Fenster", None))
     # retranslateUi
