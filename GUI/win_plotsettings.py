@@ -23,7 +23,14 @@ class Ui_win_plotsettings(object):
     def setupUi(self, win_plotsettings):
         if not win_plotsettings.objectName():
             win_plotsettings.setObjectName(u"win_plotsettings")
-        win_plotsettings.resize(196, 143)
+        win_plotsettings.resize(293, 143)
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(win_plotsettings.sizePolicy().hasHeightForWidth())
+        win_plotsettings.setSizePolicy(sizePolicy)
+        win_plotsettings.setMinimumSize(QSize(293, 143))
+        win_plotsettings.setMaximumSize(QSize(293, 143))
         self.verticalLayout = QVBoxLayout(win_plotsettings)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.dropdown_trace = QComboBox(win_plotsettings)
@@ -81,7 +88,7 @@ class Ui_win_plotsettings(object):
 
         self.plotsettings_buttons = QDialogButtonBox(win_plotsettings)
         self.plotsettings_buttons.setObjectName(u"plotsettings_buttons")
-        self.plotsettings_buttons.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.plotsettings_buttons.setStandardButtons(QDialogButtonBox.Apply|QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
         self.plotsettings_buttons.setCenterButtons(False)
 
         self.verticalLayout.addWidget(self.plotsettings_buttons)

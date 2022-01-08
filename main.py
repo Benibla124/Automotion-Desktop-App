@@ -15,7 +15,7 @@ plotcolor = []
 
 
 def randcolor():
-    color = [randint(64, 255), randint(64, 255), randint(64, 255)]
+    color = [randint(0, 255), randint(0, 255), randint(0, 255)]
     return color
 
 
@@ -92,6 +92,9 @@ class WinMain(QMainWindow, Ui_win_main):
         fileopen = True
         return fileopen
 
+    def show_win_plotsettings(self):
+        win_plotsettings.show()
+
 
 class WinPlotsettings(QWidget, Ui_win_plotsettings):
     global plotvisibility
@@ -104,31 +107,40 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
         self.dropdown_trace.addItems(data[0][1:])
         self.visible_switch.clicked.connect(self.change_visibility)
         self.color_picker.clicked.connect(self.pick_color)
-        self.color_picker.setVisible(0)
-        self.plotsettings_buttons.accepted.connect(self.save_settings)
+        self.color_picker.setEnabled(0)
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Ok).clicked.connect(self.save_settings)
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Apply).clicked.connect(self.apply_settings)
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Cancel).clicked.connect(self.discard_settings)
         self.dropdown_trace.currentIndexChanged.connect(self.refresh_visibibity_button)
 
     def refresh_visibibity_button(self):
         self.visible_switch.setChecked(plotvisibility[self.dropdown_trace.currentIndex()])
         if self.visible_switch.isChecked():
-            self.color_picker.setVisible(1)
+            self.color_picker.setEnabled(1)
         else:
-            self.color_picker.setVisible(0)
+            self.color_picker.setEnabled(0)
 
     def change_visibility(self):
         if self.visible_switch.isChecked():
-            self.color_picker.setVisible(1)
+            self.color_picker.setEnabled(1)
             plotvisibility[self.dropdown_trace.currentIndex()] = True
         else:
-            self.color_picker.setVisible(0)
+            self.color_picker.setEnabled(0)
             plotvisibility[self.dropdown_trace.currentIndex()] = False
 
     def pick_color(self):
         color = QColorDialog.getColor()
         plotcolor[self.dropdown_trace.currentIndex()] = color
 
+    def apply_settings(self):
+        win_main.plot(data)
+
     def save_settings(self):
         win_main.plot(data)
+        self.close()
+
+    def discard_settings(self):
+
         self.close()
 
 
