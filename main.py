@@ -31,7 +31,9 @@ class WinMain(QMainWindow, Ui_win_main):
         self.action_ffnen.triggered.connect(self.openfile)
         self.actionVollbild.triggered.connect(self.toggle_fullscreen)
         self.actionOverview.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(0))
+        self.overview_to_table.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(1))
         self.actionTable_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(1))
+        self.overview_to_plot.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(2))
         self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))
         self.PlotSettings.clicked.connect(lambda: win_plotsettings.show())
 
@@ -71,6 +73,7 @@ class WinMain(QMainWindow, Ui_win_main):
             self.showFullScreen()
 
     def openfile(self):
+        # TODO Implement error handling for opening an error file
         filepath = QFileDialog.getOpenFileName(self, self.tr("Open Data"), "/home/blacher", self.tr("*.txt *.csv"))
         datafile = open(filepath[0], 'r')
         global data
@@ -140,7 +143,6 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
         self.close()
 
     def discard_settings(self):
-
         self.close()
 
 

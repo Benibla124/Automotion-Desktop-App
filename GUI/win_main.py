@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QHBoxLayout, Q
                                QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QAbstractItemView)
 
 from pyqtgraph import PlotWidget
+import GUI.RCCarRender
 
 class Ui_win_main(object):
     def setupUi(self, win_main):
@@ -50,6 +51,39 @@ class Ui_win_main(object):
         self.pageswitcher.setObjectName(u"pageswitcher")
         self.view_overview = QWidget()
         self.view_overview.setObjectName(u"view_overview")
+        self.verticalLayout_4 = QVBoxLayout(self.view_overview)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.label = QLabel(self.view_overview)
+        self.label.setObjectName(u"label")
+        font = QFont()
+        font.setPointSize(24)
+        self.label.setFont(font)
+        self.label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_4.addWidget(self.label)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.overview_to_table = QPushButton(self.view_overview)
+        self.overview_to_table.setObjectName(u"overview_to_table")
+
+        self.horizontalLayout.addWidget(self.overview_to_table)
+
+        self.overview_to_plot = QPushButton(self.view_overview)
+        self.overview_to_plot.setObjectName(u"overview_to_plot")
+
+        self.horizontalLayout.addWidget(self.overview_to_plot)
+
+
+        self.verticalLayout_4.addLayout(self.horizontalLayout)
+
+        self.label_2 = QLabel(self.view_overview)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setPixmap(QPixmap(u":/Render/Car_Render.png"))
+        self.label_2.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_4.addWidget(self.label_2)
+
         self.pageswitcher.addWidget(self.view_overview)
         self.view_table = QWidget()
         self.view_table.setObjectName(u"view_table")
@@ -57,9 +91,9 @@ class Ui_win_main(object):
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.lab_tableview = QLabel(self.view_table)
         self.lab_tableview.setObjectName(u"lab_tableview")
-        font = QFont()
-        font.setPointSize(18)
-        self.lab_tableview.setFont(font)
+        font1 = QFont()
+        font1.setPointSize(18)
+        self.lab_tableview.setFont(font1)
         self.lab_tableview.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_3.addWidget(self.lab_tableview)
@@ -85,7 +119,7 @@ class Ui_win_main(object):
 
         self.lab_plotview = QLabel(self.view_plotview)
         self.lab_plotview.setObjectName(u"lab_plotview")
-        self.lab_plotview.setFont(font)
+        self.lab_plotview.setFont(font1)
         self.lab_plotview.setAlignment(Qt.AlignCenter)
 
         self.horizontalLayout_2.addWidget(self.lab_plotview)
@@ -134,7 +168,7 @@ class Ui_win_main(object):
 
         self.retranslateUi(win_main)
 
-        self.pageswitcher.setCurrentIndex(2)
+        self.pageswitcher.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(win_main)
@@ -142,15 +176,15 @@ class Ui_win_main(object):
 
     def retranslateUi(self, win_main):
         win_main.setWindowTitle(QCoreApplication.translate("win_main", u"MainWindow", None))
-        self.actionBeenden.setText(QCoreApplication.translate("win_main", u"Beenden", None))
+        self.actionBeenden.setText(QCoreApplication.translate("win_main", u"Exit", None))
 #if QT_CONFIG(shortcut)
         self.actionBeenden.setShortcut(QCoreApplication.translate("win_main", u"Ctrl+Q", None))
 #endif // QT_CONFIG(shortcut)
-        self.action_ffnen.setText(QCoreApplication.translate("win_main", u"\u00d6ffnen", None))
+        self.action_ffnen.setText(QCoreApplication.translate("win_main", u"Open", None))
 #if QT_CONFIG(shortcut)
         self.action_ffnen.setShortcut(QCoreApplication.translate("win_main", u"Ctrl+O", None))
 #endif // QT_CONFIG(shortcut)
-        self.actionVollbild.setText(QCoreApplication.translate("win_main", u"Vollbild", None))
+        self.actionVollbild.setText(QCoreApplication.translate("win_main", u"Fullscreen", None))
 #if QT_CONFIG(shortcut)
         self.actionVollbild.setShortcut(QCoreApplication.translate("win_main", u"F11", None))
 #endif // QT_CONFIG(shortcut)
@@ -166,10 +200,14 @@ class Ui_win_main(object):
 #if QT_CONFIG(shortcut)
         self.actionPlot_View.setShortcut(QCoreApplication.translate("win_main", u"P", None))
 #endif // QT_CONFIG(shortcut)
+        self.label.setText(QCoreApplication.translate("win_main", u"RC-Car Data Analysis App", None))
+        self.overview_to_table.setText(QCoreApplication.translate("win_main", u"Table View", None))
+        self.overview_to_plot.setText(QCoreApplication.translate("win_main", u"Plot View", None))
+        self.label_2.setText("")
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.PlotSettings.setText(QCoreApplication.translate("win_main", u"Plot Settings", None))
-        self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"Datei", None))
-        self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Fenster", None))
+        self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"File", None))
+        self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Window", None))
     # retranslateUi
 
