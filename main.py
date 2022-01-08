@@ -82,7 +82,6 @@ class WinMain(QMainWindow, Ui_win_main):
         data = np.array(list(reader(datafile)))
 
         for category in range(1, len(data[0])):
-            print(category)
             if data[0][category] == 'ax' or data[0][category] == 'ay' or data[0][category] == 'az':
                 plotvisibility.append(True)
             else:
