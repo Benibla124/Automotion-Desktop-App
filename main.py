@@ -2,7 +2,8 @@ from csv import reader
 from datetime import datetime
 from random import randint
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QColorDialog, QWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QColorDialog, QWidget, \
+    QMessageBox
 from GUI.win_main import Ui_win_main
 from GUI.win_plotsettings import Ui_win_plotsettings
 import pyqtgraph
@@ -11,7 +12,7 @@ import numpy as np
 windowtitle = "RC-Car Viewer"
 data = []
 plotvisibility = []
-plotcolor = []
+plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "aqua", "lime", "pink", "grey"])
 
 
 def randcolor():
@@ -45,10 +46,8 @@ class WinMain(QMainWindow, Ui_win_main):
         plotdata = plotdata[1:, 1:]
         plotdata = np.asarray(plotdata, dtype=float)
         timeaxis = pyqtgraph.DateAxisItem()
-        # pen = pyqtgraph.mkPen(color=(0, 0, 255))  # make own pen
         self.graphWidget.clear()
         self.graphWidget.setAxisItems({'bottom': timeaxis})
-        # self.graphWidget.setBackground('w') # set white background
         self.graphWidget.addLegend()
         for category in range(len(plotdata[0])):
             if plotvisibility[category]:
@@ -73,20 +72,36 @@ class WinMain(QMainWindow, Ui_win_main):
             self.showFullScreen()
 
     def openfile(self):
-        # TODO Implement error handling for opening an error file
+        # TODO Always plot with the same color even if an entry is being deleted
         filepath = QFileDialog.getOpenFileName(self, self.tr("Open Data"), "/home/blacher", self.tr("*.txt *.csv"))
         datafile = open(filepath[0], 'r')
         global data
         global plotvisibility
         global plotcolor
         data = np.array(list(reader(datafile)))
-
+        offs = 0
+        tempdata = data
+        errorcategories = []
+        for yloop in range(len(data)):
+            for xloop in range(len(data[yloop])):
+                if data[0][xloop] in errorcategories:
+                    pass
+                elif data[yloop][xloop] == "error":
+                    errorcategories.append(data[0][xloop])
+                    plotcolor = np.delete(plotcolor, xloop-offs)
+                    tempdata = np.delete(tempdata, xloop - offs, axis=1)
+                    offs += 1
+        if offs > 0:
+            msgBox = QMessageBox()
+            msgBox.setText("There are " + str(offs) + " errors in your datafile, the following categories are not being included: " + str(errorcategories))
+            msgBox.exec()
+        data = tempdata
+        self.table_tableview.resizeColumnsToContents()
         for category in range(1, len(data[0])):
             if data[0][category] == 'ax' or data[0][category] == 'ay' or data[0][category] == 'az':
                 plotvisibility.append(True)
             else:
                 plotvisibility.append(False)
-            plotcolor.append(randcolor())
 
         self.plot(data)
         self.populate_table(data)
