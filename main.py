@@ -13,6 +13,7 @@ windowtitle = "RC-Car Viewer"
 data = []
 plotvisibility = []
 plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "aqua", "lime", "pink", "grey"])
+datatypes = np.array([[True, 3, "Orientation", "roll", "pitch", "yaw", "", 1, 2, 3, ""], [True, 3, "Acceleration", "ax", "ay", "az", "", 4, 5, 6, ""], [True, 1, "Temperature", "Temp", "", "", "", 7, "", "", ""], [True, 2, "Coordinates", "lat", "lng", "", "", 8, 9, "", ""], [True, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 10, 11, 12, 13], [True, 1, "Velocity", "vel_ms", "", "", "", 14, "", "", ""]])
 
 
 def randcolor():
@@ -81,12 +82,13 @@ class WinMain(QMainWindow, Ui_win_main):
         offs = 0
         tempdata = data
         errorcategories = []
+        # TODO Delete whole category
         for yloop in range(len(data)):
             for xloop in range(len(data[yloop])):
                 if data[0][xloop] in errorcategories:
                     pass
                 elif data[yloop][xloop] == "error":
-                    errorcategories.append(data[0][xloop])
+                    errorcategories.append(datatypes[xloop, 1])
                     plotcolor = np.delete(plotcolor, xloop - (offs + 1))
                     tempdata = np.delete(tempdata, xloop - offs, axis=1)
                     offs += 1
@@ -120,7 +122,7 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle("Plot Settings")
-        self.dropdown_trace.addItems(data[0][1:])
+        self.dropdown_trace.addItems(datatypes[:, 2])
         self.visible_switch.clicked.connect(self.change_visibility)
         self.color_picker.clicked.connect(self.pick_color)
         self.color_picker.setEnabled(0)
