@@ -72,7 +72,6 @@ class WinMain(QMainWindow, Ui_win_main):
             self.showFullScreen()
 
     def openfile(self):
-        # TODO Always plot with the same color even if an entry is being deleted
         filepath = QFileDialog.getOpenFileName(self, self.tr("Open Data"), "/home/blacher", self.tr("*.txt *.csv"))
         datafile = open(filepath[0], 'r')
         global data
@@ -88,7 +87,7 @@ class WinMain(QMainWindow, Ui_win_main):
                     pass
                 elif data[yloop][xloop] == "error":
                     errorcategories.append(data[0][xloop])
-                    plotcolor = np.delete(plotcolor, xloop-offs)
+                    plotcolor = np.delete(plotcolor, xloop - (offs + 1))
                     tempdata = np.delete(tempdata, xloop - offs, axis=1)
                     offs += 1
         if offs > 0:
