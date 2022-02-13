@@ -12,7 +12,7 @@ import numpy as np
 windowtitle = "RC-Car Viewer"
 data = []
 plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "aqua", "lime", "pink", "grey"])
-datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [1, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 2, "Coordinates", "lat", "lng", "", "", 7, 8, "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 9, 10, 11, 12], [1, 1, "Velocity", "vel_ms", "", "", "", 13, "", "", ""]])
+datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [1, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 7, 8, "", ""], [0, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 9, 10, 11, 12], [0, 1, "Velocity", "vel_ms", "", "", "", 13, "", "", ""]])
 
 
 def randcolor():
@@ -46,24 +46,34 @@ class WinMain(QMainWindow, Ui_win_main):
             timedata.append(datetime.strptime(plotdata[timeloop][0], timeformat))
         plotdata = plotdata[1:, 1:]
         for elements in range(len(datatypes)):
-            for subelements in range(len(datatypes[elements, 7:])):
-                try:
-                    plotdata = np.delete(plotdata, int(datatypes[elements, subelements + 7]) - dataoffset, 1)
-                    dataoffset += 1
-                except:
-                    pass
+            if int(datatypes[elements, 0]) == 2:
+                for subelements in range(len(datatypes[elements, 7:])):
+                    try:
+                        plotdata = np.delete(plotdata, int(datatypes[elements, subelements + 7]) - dataoffset, 1)
+                        dataoffset += 1
+                    except:
+                        pass
         plotdata = np.asarray(plotdata, dtype=float)
         timeaxis = pyqtgraph.DateAxisItem()
         self.graphWidget.clear()
         self.graphWidget.setAxisItems({'bottom': timeaxis})
         self.graphWidget.addLegend()
+        dataoffset = 0
         for elements in range(len(datatypes)):
-            for subelements in range(len(datatypes[elements, 7:])):
-                #try:
-                    pen = pyqtgraph.mkPen(color=plotcolor[int(datatypes[elements, subelements + 7])])
-                    self.graphWidget.plot([xitem.timestamp() for xitem in timedata], plotdata[:, int(datatypes[elements, subelements + 7])], pen=pen, name=data[0][int(datatypes[elements, subelements + 7]) + 1])
-                #except:
-                    #pass TODO error fix here
+            if int(datatypes[elements, 0]) == 2:
+                dataoffset = dataoffset + int(datatypes[elements, 1])
+            elif int(datatypes[elements, 0]) == 0:
+                pass
+            elif int(datatypes[elements, 0]) == 1:
+                for subelements in range(len(datatypes[elements, 7:])):
+                    try:
+                        indexnumber = int(datatypes[elements, subelements + 7]) - dataoffset
+                        pen = pyqtgraph.mkPen(color=plotcolor[indexnumber + dataoffset])
+                        self.graphWidget.plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber],
+                                              pen=pen, name=data[0][indexnumber + 1 + dataoffset])
+                    except:
+                        pass
+
 
 
     def populate_table(self, tabledata):
@@ -90,14 +100,17 @@ class WinMain(QMainWindow, Ui_win_main):
         global plotcolor
         data = np.array(list(reader(datafile)))
         tempdata = data
-        errortypes = []
         for yloop in range(len(data)):
             for xloop in range(len(data[yloop])):
                 if data[yloop][xloop] == "error":
                     for typeloop in range(len(datatypes)):
-                        if str(xloop) in datatypes[typeloop, 7:]:
-                            errortypes.append(datatypes[typeloop, 2])
+                        if str(xloop-1) in datatypes[typeloop, 7:]:
                             datatypes[typeloop, 0] = 2
+
+        errortypes = []
+        for elements in range(len(datatypes)):
+            if int(datatypes[elements, 0]) == 2:
+                errortypes.append(datatypes[elements, 2])
 
         if not errortypes == []:
             msgBox = QMessageBox()
@@ -116,13 +129,16 @@ class WinMain(QMainWindow, Ui_win_main):
 
 
 class WinPlotsettings(QWidget, Ui_win_plotsettings):
+    # TODO fix plotsettings
     global plotcolor
 
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle("Plot Settings")
-        self.dropdown_trace.addItems(datatypes[:, 2])
+        for elements in range(len(datatypes)):
+            if not int(datatypes[elements, 0]) == 2:
+                self.dropdown_trace.addItem(datatypes[elements, 2])
         self.visible_switch.clicked.connect(self.change_visibility)
         self.color_picker.clicked.connect(self.pick_color)
         self.color_picker.setEnabled(0)
@@ -141,10 +157,10 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
     def change_visibility(self):
         if self.visible_switch.isChecked():
             self.color_picker.setEnabled(1)
-            datatypes[self.dropdown_trace.currentIndex(), 0] = True
+            datatypes[self.dropdown_trace.currentIndex(), 0] = 1
         else:
             self.color_picker.setEnabled(0)
-            datatypes[self.dropdown_trace.currentIndex(), 0] = False
+            datatypes[self.dropdown_trace.currentIndex(), 0] = 0
 
     def pick_color(self):
         color = QColorDialog.getColor()
