@@ -2,17 +2,15 @@ from csv import reader
 from datetime import datetime
 from random import randint
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QColorDialog, QWidget, \
-    QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox
 from GUI.win_main import Ui_win_main
-from GUI.win_plotsettings import Ui_win_plotsettings
 import pyqtgraph
 import numpy as np
 
 windowtitle = "RC-Car Viewer"
 data = []
 plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "aqua", "lime", "pink", "grey"])
-datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [1, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 7, 8, "", ""], [0, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 9, 10, 11, 12], [0, 1, "Velocity", "vel_ms", "", "", "", 13, "", "", ""]])
+datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [1, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [0, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [0, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
 
 
 def randcolor():
@@ -36,7 +34,6 @@ class WinMain(QMainWindow, Ui_win_main):
         self.actionTable_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(1))
         self.overview_to_plot.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(2))
         self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))
-        self.PlotSettings.clicked.connect(lambda: win_plotsettings.show())
 
     def plot(self, plotdata):
         timedata = []
@@ -124,61 +121,7 @@ class WinMain(QMainWindow, Ui_win_main):
         fileopen = True
         return fileopen
 
-    def show_win_plotsettings(self):
-        win_plotsettings.show()
-
-
-class WinPlotsettings(QWidget, Ui_win_plotsettings):
-    # TODO fix plotsettings
-    global plotcolor
-
-    def __init__(self):
-        super().__init__()
-        self.setupUi(self)
-        self.setWindowTitle("Plot Settings")
-        for elements in range(len(datatypes)):
-            if not int(datatypes[elements, 0]) == 2:
-                self.dropdown_trace.addItem(datatypes[elements, 2])
-        self.visible_switch.clicked.connect(self.change_visibility)
-        self.color_picker.clicked.connect(self.pick_color)
-        self.color_picker.setEnabled(0)
-        self.plotsettings_buttons.button(self.plotsettings_buttons.Ok).clicked.connect(self.save_settings)
-        self.plotsettings_buttons.button(self.plotsettings_buttons.Apply).clicked.connect(self.apply_settings)
-        self.plotsettings_buttons.button(self.plotsettings_buttons.Cancel).clicked.connect(self.discard_settings)
-        self.dropdown_trace.currentIndexChanged.connect(self.refresh_visibibity_button)
-
-    def refresh_visibibity_button(self):
-        self.visible_switch.setChecked(datatypes[self.dropdown_trace.currentIndex(), 0])
-        if self.visible_switch.isChecked():
-            self.color_picker.setEnabled(1)
-        else:
-            self.color_picker.setEnabled(0)
-
-    def change_visibility(self):
-        if self.visible_switch.isChecked():
-            self.color_picker.setEnabled(1)
-            datatypes[self.dropdown_trace.currentIndex(), 0] = 1
-        else:
-            self.color_picker.setEnabled(0)
-            datatypes[self.dropdown_trace.currentIndex(), 0] = 0
-
-    def pick_color(self):
-        color = QColorDialog.getColor()
-        plotcolor[self.dropdown_trace.currentIndex()] = color
-
-    def apply_settings(self):
-        win_main.plot(data)
-
-    def save_settings(self):
-        win_main.plot(data)
-        self.close()
-
-    def discard_settings(self):
-        self.close()
-
-
 desktop_app = QApplication()
 win_main = WinMain()
-win_plotsettings = WinPlotsettings()
 win_main.show()
 desktop_app.exec()

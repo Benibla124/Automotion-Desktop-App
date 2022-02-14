@@ -128,11 +128,6 @@ class Ui_win_main(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
 
-        self.PlotSettings = QPushButton(self.view_plotview)
-        self.PlotSettings.setObjectName(u"PlotSettings")
-
-        self.horizontalLayout_2.addWidget(self.PlotSettings)
-
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_2)
 
@@ -148,7 +143,7 @@ class Ui_win_main(object):
         win_main.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(win_main)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1200, 20))
+        self.menubar.setGeometry(QRect(0, 0, 1200, 19))
         self.menuDatei = QMenu(self.menubar)
         self.menuDatei.setObjectName(u"menuDatei")
         self.menuFenster = QMenu(self.menubar)
@@ -206,7 +201,6 @@ class Ui_win_main(object):
         self.label_2.setText("")
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
-        self.PlotSettings.setText(QCoreApplication.translate("win_main", u"Plot Settings", None))
         self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"File", None))
         self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Window", None))
     # retranslateUi
