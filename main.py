@@ -6,12 +6,14 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidg
 from GUI.win_main import Ui_win_main
 import pyqtgraph
 import numpy as np
+import staticmaps
 
 windowtitle = "RC-Car Viewer"
 data = []
 plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "aqua", "lime", "pink", "grey"])
 datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [1, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
-
+context = staticmaps.Context()
+context.set_tile_provider(staticmaps.tile_provider_OSM)
 
 def randcolor():
     color = [randint(0, 255), randint(0, 255), randint(0, 255)]
@@ -34,6 +36,8 @@ class WinMain(QMainWindow, Ui_win_main):
         self.actionTable_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(1))
         self.overview_to_plot.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(2))
         self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))
+        self.overview_to_map.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(3))
+        self.actionMap_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(3))
 
     def plot(self, plotdata):
         timedata = []
@@ -117,6 +121,13 @@ class WinMain(QMainWindow, Ui_win_main):
         self.table_tableview.resizeColumnsToContents()
         self.plot(data)
         self.populate_table(data)
+        # TODO zoom factor
+        gps_data = data[1:, int(datatypes[5, 7]) + 1:]
+        gps_data = np.asarray(gps_data, dtype=float)
+        context.add_object(
+        staticmaps.Line([staticmaps.create_latlng(lat, lng) for lat, lng in gps_data], width=3))
+        image = context.render_pillow(1800, 900)
+        image.save("map_tmp.png")
 
         fileopen = True
         return fileopen

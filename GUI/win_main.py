@@ -43,6 +43,8 @@ class Ui_win_main(object):
         self.actionTable_View.setObjectName(u"actionTable_View")
         self.actionPlot_View = QAction(win_main)
         self.actionPlot_View.setObjectName(u"actionPlot_View")
+        self.actionMap_View = QAction(win_main)
+        self.actionMap_View.setObjectName(u"actionMap_View")
         self.centralwidget = QWidget(win_main)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_2 = QVBoxLayout(self.centralwidget)
@@ -64,6 +66,10 @@ class Ui_win_main(object):
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_5)
+
         self.overview_to_table = QPushButton(self.view_overview)
         self.overview_to_table.setObjectName(u"overview_to_table")
 
@@ -73,6 +79,15 @@ class Ui_win_main(object):
         self.overview_to_plot.setObjectName(u"overview_to_plot")
 
         self.horizontalLayout.addWidget(self.overview_to_plot)
+
+        self.overview_to_map = QPushButton(self.view_overview)
+        self.overview_to_map.setObjectName(u"overview_to_map")
+
+        self.horizontalLayout.addWidget(self.overview_to_map)
+
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_6)
 
 
         self.verticalLayout_4.addLayout(self.horizontalLayout)
@@ -137,13 +152,38 @@ class Ui_win_main(object):
         self.verticalLayout_6.addWidget(self.graphWidget)
 
         self.pageswitcher.addWidget(self.view_plotview)
+        self.view_mapview = QWidget()
+        self.view_mapview.setObjectName(u"view_mapview")
+        self.verticalLayout = QVBoxLayout(self.view_mapview)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer_3)
+
+        self.lab_mapview = QLabel(self.view_mapview)
+        self.lab_mapview.setObjectName(u"lab_mapview")
+        self.lab_mapview.setFont(font1)
+        self.lab_mapview.setAlignment(Qt.AlignCenter)
+
+        self.horizontalLayout_3.addWidget(self.lab_mapview)
+
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer_4)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+
+        self.pageswitcher.addWidget(self.view_mapview)
 
         self.verticalLayout_2.addWidget(self.pageswitcher)
 
         win_main.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(win_main)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1200, 19))
+        self.menubar.setGeometry(QRect(0, 0, 1200, 20))
         self.menuDatei = QMenu(self.menubar)
         self.menuDatei.setObjectName(u"menuDatei")
         self.menuFenster = QMenu(self.menubar)
@@ -160,6 +200,7 @@ class Ui_win_main(object):
         self.menuFenster.addAction(self.actionOverview)
         self.menuFenster.addAction(self.actionTable_View)
         self.menuFenster.addAction(self.actionPlot_View)
+        self.menuFenster.addAction(self.actionMap_View)
 
         self.retranslateUi(win_main)
 
@@ -195,12 +236,18 @@ class Ui_win_main(object):
 #if QT_CONFIG(shortcut)
         self.actionPlot_View.setShortcut(QCoreApplication.translate("win_main", u"P", None))
 #endif // QT_CONFIG(shortcut)
+        self.actionMap_View.setText(QCoreApplication.translate("win_main", u"Map View", None))
+#if QT_CONFIG(shortcut)
+        self.actionMap_View.setShortcut(QCoreApplication.translate("win_main", u"M", None))
+#endif // QT_CONFIG(shortcut)
         self.label.setText(QCoreApplication.translate("win_main", u"RC-Car Data Analysis App", None))
         self.overview_to_table.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.overview_to_plot.setText(QCoreApplication.translate("win_main", u"Plot View", None))
+        self.overview_to_map.setText(QCoreApplication.translate("win_main", u"Map View", None))
         self.label_2.setText("")
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
+        self.lab_mapview.setText(QCoreApplication.translate("win_main", u"Map View", None))
         self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"File", None))
         self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Window", None))
     # retranslateUi
