@@ -28,6 +28,8 @@ class WinMain(QMainWindow, Ui_win_main):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle(windowtitle)
+        if not os.path.exists('temp'):  # If the temp path doesn't exit, create it
+            os.makedirs('temp')
         try:
             for filename in os.listdir("./temp/"):
                 os.remove("./temp/" + filename)
