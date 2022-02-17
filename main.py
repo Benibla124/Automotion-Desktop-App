@@ -86,6 +86,18 @@ class WinMain(QMainWindow, Ui_win_main):
         self.graphWidget.setAxisItems({'bottom': timeaxis})
         self.graphWidget.addLegend()
         dataoffset = 0
+
+        # TODO complete this
+        # p1 = self.graphWidget.plotItem
+        # p1.setLabels(left="Acceleration")
+        #
+        # p2 = pyqtgraph.ViewBox()
+        # self.graphWidget.showAxis('right')
+        # self.graphWidget.scene().addItem(p2)
+        # self.graphWidget.getAxis('right').linkToView(p2)
+        # p2.setXLink(self)
+        # p2.self.graphWidget.getAxis('right').setLabel('axis2', color='#0000ff')
+
         for elements in range(len(datatypes)):
             if int(datatypes[elements, 0]) == 2:
                 dataoffset = dataoffset + int(datatypes[elements, 1])
@@ -96,7 +108,7 @@ class WinMain(QMainWindow, Ui_win_main):
                     try:
                         indexnumber = int(datatypes[elements, subelements + 7]) - dataoffset
                         pen = pyqtgraph.mkPen(color=plotcolor[indexnumber + dataoffset])
-                        self.graphWidget.plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber],
+                        p1.plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber],
                                               pen=pen, name=data[0][indexnumber + 1 + dataoffset])
                     except:
                         pass
