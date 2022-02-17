@@ -1,3 +1,5 @@
+# TODO gps error in file handling --> lock map view
+
 from csv import reader
 from datetime import datetime
 from random import randint
@@ -13,7 +15,7 @@ import staticmaps
 windowtitle = "RC-Car Viewer"
 data = []
 plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "aqua", "lime", "pink", "grey"])
-datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [1, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
+datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [0, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
 context = staticmaps.Context()
 context.set_tile_provider(staticmaps.tile_provider_OSM)
 
@@ -65,7 +67,7 @@ class WinMain(QMainWindow, Ui_win_main):
         context.set_tile_provider(staticmaps.tile_provider_OSM)
         self.draw_map()
 
-    def plot(self, plotdata):
+    def plot(self, plotdata, axis1, axis2, axis3):
         timedata = []
         dataoffset = 0
         timeformat = "%Y-%m-%d %H:%M:%S.%f"
@@ -80,23 +82,69 @@ class WinMain(QMainWindow, Ui_win_main):
                         dataoffset += 1
                     except:
                         pass
+
         plotdata = np.asarray(plotdata, dtype=float)
         timeaxis = pyqtgraph.DateAxisItem()
         self.graphWidget.clear()
         self.graphWidget.setAxisItems({'bottom': timeaxis})
         self.graphWidget.addLegend()
         dataoffset = 0
+        includedcategories = []
 
-        # TODO complete this
-        # p1 = self.graphWidget.plotItem
-        # p1.setLabels(left="Acceleration")
-        #
-        # p2 = pyqtgraph.ViewBox()
-        # self.graphWidget.showAxis('right')
-        # self.graphWidget.scene().addItem(p2)
-        # self.graphWidget.getAxis('right').linkToView(p2)
-        # p2.setXLink(self)
-        # p2.self.graphWidget.getAxis('right').setLabel('axis2', color='#0000ff')
+        for elements in range(len(datatypes)):
+            if not datatypes[elements, 0] == "2":
+                includedcategories.append(datatypes[elements, 2])
+
+        if not axis3.size == 0:
+            axisneeded = 3
+        elif not axis2.size == 0:
+            axisneeded = 2
+        elif not axis1.size == 0:
+            axisneeded = 1
+        else:
+            axisneeded = 0
+
+        print(axisneeded)
+        axis1label = ""
+        axis2label = ""
+        axis3label = ""
+
+        for axis1loop in range(len(axis1)):
+            if not axis1loop == 0:
+                axis1label = axis1label + ", "
+            axis1label = axis1label + includedcategories[axis1[axis1loop]]
+
+        for axis2loop in range(len(axis2)):
+            if not axis2loop == 0:
+                axis2label = axis2label + ", "
+            axis2label = axis2label + includedcategories[axis2[axis2loop]]
+
+        for axis3loop in range(len(axis3)):
+            if not axis3loop == 0:
+                axis3label = axis3label + ", "
+            axis3label = axis3label + includedcategories[axis3[axis3loop]]
+
+        if axisneeded >= 1:
+            plots = [self.graphWidget.plotItem]
+            plots[0].setLabels(left=axis1label)
+
+            if axisneeded >= 2:
+                plots.append(pyqtgraph.ViewBox())
+                plots[0].showAxis('right')
+                plots[0].scene().addItem(plots[1])
+                plots[0].getAxis('right').linkToView(plots[1])
+                plots[1].setXLink(self.graphWidget)
+                plots[0].getAxis('right').setLabel(axis2label)
+
+                if axisneeded == 3:
+                    plots.append(pyqtgraph.ViewBox())
+                    ax3 = pyqtgraph.AxisItem('right')
+                    plots[0].layout.addItem(ax3, 2, 3)
+                    plots[0].scene().addItem(plots[2])
+                    ax3.linkToView(plots[2])
+                    plots[2].setXLink(plots[0])
+                    ax3.setZValue(-10000)
+                    ax3.setLabel(axis3label)
 
         for elements in range(len(datatypes)):
             if int(datatypes[elements, 0]) == 2:
@@ -108,11 +156,10 @@ class WinMain(QMainWindow, Ui_win_main):
                     try:
                         indexnumber = int(datatypes[elements, subelements + 7]) - dataoffset
                         pen = pyqtgraph.mkPen(color=plotcolor[indexnumber + dataoffset])
-                        p1.plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber],
+                        plots[0].plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber],
                                               pen=pen, name=data[0][indexnumber + 1 + dataoffset])
                     except:
                         pass
-
 
     def populate_table(self, tabledata):
         self.table_tableview.setRowCount(len(tabledata)-1)
@@ -176,11 +223,14 @@ class WinMain(QMainWindow, Ui_win_main):
 
         if not errortypes == []:
             msgBox = QMessageBox()
-            msgBox.setText("There are errors in your datafile, the following categories are not being included: " + str(errortypes))
+            msgBox.setText("There are errors in your datafile, the following categories are not available for plotting: " + str(errortypes))
             msgBox.exec()
         data = tempdata
         self.table_tableview.resizeColumnsToContents()
-        self.plot(data)
+        axis1init = np.array([0, 1, 2, 3, 4, 5])
+        axis2init = np.array([])
+        axis3init = np.array([])
+        self.plot(data, axis1init, axis2init, axis3init)
         self.populate_table(data)
         fileopen = True
         return fileopen
