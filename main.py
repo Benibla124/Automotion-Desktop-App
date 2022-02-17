@@ -2,9 +2,11 @@ from csv import reader
 from datetime import datetime
 from random import randint
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QGraphicsPixmapItem, QGraphicsScene
 from GUI.win_main import Ui_win_main
 import pyqtgraph
+import os
 import numpy as np
 import staticmaps
 
@@ -14,6 +16,7 @@ plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "whit
 datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [1, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
 context = staticmaps.Context()
 context.set_tile_provider(staticmaps.tile_provider_OSM)
+
 
 def randcolor():
     color = [randint(0, 255), randint(0, 255), randint(0, 255)]
@@ -25,6 +28,16 @@ class WinMain(QMainWindow, Ui_win_main):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle(windowtitle)
+        try:
+            for filename in os.listdir("./temp/"):
+                os.remove("./temp/" + filename)
+        except:
+            pass
+        car_pixmap = QPixmap("GUI/Car_Render.png")
+        car_item = QGraphicsPixmapItem(car_pixmap)
+        car_scene = QGraphicsScene(self)
+        car_scene.addItem(car_item)
+        self.main_Car.setScene(car_scene)
         openedfile = False
         while not openedfile:
             openedfile = self.openfile()
@@ -38,6 +51,17 @@ class WinMain(QMainWindow, Ui_win_main):
         self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))
         self.overview_to_map.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(3))
         self.actionMap_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(3))
+        self.MapLoadButton.clicked.connect(self.draw_map)
+        self.styleSatellite.clicked.connect(self.map_satellite)
+        self.styleMap.clicked.connect(self.map_map)
+
+    def map_satellite(self):
+        context.set_tile_provider(staticmaps.tile_provider_ArcGISWorldImagery)
+        self.draw_map()
+
+    def map_map(self):
+        context.set_tile_provider(staticmaps.tile_provider_OSM)
+        self.draw_map()
 
     def plot(self, plotdata):
         timedata = []
@@ -76,7 +100,6 @@ class WinMain(QMainWindow, Ui_win_main):
                         pass
 
 
-
     def populate_table(self, tabledata):
         self.table_tableview.setRowCount(len(tabledata)-1)
         self.table_tableview.setColumnCount(len(tabledata[1])-1)
@@ -88,6 +111,23 @@ class WinMain(QMainWindow, Ui_win_main):
                 self.table_tableview.setItem(yloop, xloop, QTableWidgetItem(str(tabledata[yloop][xloop])))
         self.table_tableview.resizeColumnsToContents()
 
+    def draw_map(self):
+        gps_data = data[1:, int(datatypes[5, 7]) + 1:]
+        gps_data = np.asarray(gps_data, dtype=float)
+        context.add_object(
+        staticmaps.Line([staticmaps.create_latlng(lat, lng) for lat, lng in gps_data], width=1))
+        image = context.render_svg(1800, 900, 19)
+        image.saveas("temp/map_tmp.svg")
+        map_pixmap = QPixmap("temp/map_tmp.svg")
+        map_item = QGraphicsPixmapItem(map_pixmap)
+        map_scene = QGraphicsScene(self)
+        map_scene.addItem(map_item)
+        self.MapLoadButton.setVisible(0)
+        self.mapdisplay.setVisible(1)
+        self.styleSatellite.setVisible(1)
+        self.styleMap.setVisible(1)
+        self.mapdisplay.setScene(map_scene)
+
     def toggle_fullscreen(self):
         if not self.actionVollbild.isChecked():
             self.showNormal()
@@ -95,8 +135,15 @@ class WinMain(QMainWindow, Ui_win_main):
             self.showFullScreen()
 
     def openfile(self):
+        self.mapdisplay.setVisible(0)
+        self.MapLoadButton.setVisible(1)
+        self.styleSatellite.setVisible(0)
+        self.styleMap.setVisible(0)
         filepath = QFileDialog.getOpenFileName(self, self.tr("Open Data"), "/home/blacher", self.tr("*.txt *.csv"))
-        datafile = open(filepath[0], 'r')
+        try:
+            datafile = open(filepath[0], 'r')
+        except:
+            exit()
         global data
         global plotcolor
         data = np.array(list(reader(datafile)))
@@ -121,16 +168,9 @@ class WinMain(QMainWindow, Ui_win_main):
         self.table_tableview.resizeColumnsToContents()
         self.plot(data)
         self.populate_table(data)
-        # TODO zoom factor
-        gps_data = data[1:, int(datatypes[5, 7]) + 1:]
-        gps_data = np.asarray(gps_data, dtype=float)
-        context.add_object(
-        staticmaps.Line([staticmaps.create_latlng(lat, lng) for lat, lng in gps_data], width=3))
-        image = context.render_pillow(1800, 900)
-        image.save("map_tmp.png")
-
         fileopen = True
         return fileopen
+
 
 desktop_app = QApplication()
 win_main = WinMain()

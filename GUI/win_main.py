@@ -16,13 +16,13 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QHBoxLayout, QHeaderView,
-                               QLabel, QMainWindow, QMenu, QMenuBar,
-                               QPushButton, QSizePolicy, QSpacerItem, QStackedWidget,
-                               QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QAbstractItemView)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QGraphicsView, QHBoxLayout,
+                               QHeaderView, QLabel, QMainWindow, QMenu,
+                               QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
+                               QStackedWidget, QTableWidget, QTableWidgetItem, QVBoxLayout,
+                               QWidget, QAbstractItemView)
 
 from pyqtgraph import PlotWidget
-import GUI.RCCarRender
 
 class Ui_win_main(object):
     def setupUi(self, win_main):
@@ -92,12 +92,10 @@ class Ui_win_main(object):
 
         self.verticalLayout_4.addLayout(self.horizontalLayout)
 
-        self.label_2 = QLabel(self.view_overview)
-        self.label_2.setObjectName(u"label_2")
-        self.label_2.setPixmap(QPixmap(u":/Render/Car_Render.png"))
-        self.label_2.setAlignment(Qt.AlignCenter)
+        self.main_Car = QGraphicsView(self.view_overview)
+        self.main_Car.setObjectName(u"main_Car")
 
-        self.verticalLayout_4.addWidget(self.label_2)
+        self.verticalLayout_4.addWidget(self.main_Car)
 
         self.pageswitcher.addWidget(self.view_overview)
         self.view_table = QWidget()
@@ -173,8 +171,28 @@ class Ui_win_main(object):
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_4)
 
+        self.styleSatellite = QPushButton(self.view_mapview)
+        self.styleSatellite.setObjectName(u"styleSatellite")
+
+        self.horizontalLayout_3.addWidget(self.styleSatellite)
+
+        self.styleMap = QPushButton(self.view_mapview)
+        self.styleMap.setObjectName(u"styleMap")
+
+        self.horizontalLayout_3.addWidget(self.styleMap)
+
 
         self.verticalLayout.addLayout(self.horizontalLayout_3)
+
+        self.MapLoadButton = QPushButton(self.view_mapview)
+        self.MapLoadButton.setObjectName(u"MapLoadButton")
+
+        self.verticalLayout.addWidget(self.MapLoadButton)
+
+        self.mapdisplay = QGraphicsView(self.view_mapview)
+        self.mapdisplay.setObjectName(u"mapdisplay")
+
+        self.verticalLayout.addWidget(self.mapdisplay)
 
         self.pageswitcher.addWidget(self.view_mapview)
 
@@ -183,7 +201,7 @@ class Ui_win_main(object):
         win_main.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(win_main)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1200, 20))
+        self.menubar.setGeometry(QRect(0, 0, 1200, 19))
         self.menuDatei = QMenu(self.menubar)
         self.menuDatei.setObjectName(u"menuDatei")
         self.menuFenster = QMenu(self.menubar)
@@ -244,10 +262,12 @@ class Ui_win_main(object):
         self.overview_to_table.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.overview_to_plot.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.overview_to_map.setText(QCoreApplication.translate("win_main", u"Map View", None))
-        self.label_2.setText("")
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.lab_mapview.setText(QCoreApplication.translate("win_main", u"Map View", None))
+        self.styleSatellite.setText(QCoreApplication.translate("win_main", u"Satellite ", None))
+        self.styleMap.setText(QCoreApplication.translate("win_main", u"Map", None))
+        self.MapLoadButton.setText(QCoreApplication.translate("win_main", u"Draw the map (needs an active internet connection)", None))
         self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"File", None))
         self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Window", None))
     # retranslateUi
