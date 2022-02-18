@@ -1,5 +1,3 @@
-# TODO gps error in file handling --> lock map view
-
 from csv import reader
 from datetime import datetime
 from random import randint
@@ -14,10 +12,18 @@ import staticmaps
 
 windowtitle = "RC-Car Viewer"
 data = []
+plots = []
 plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "aqua", "lime", "pink", "grey"])
 datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [0, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
 context = staticmaps.Context()
 context.set_tile_provider(staticmaps.tile_provider_OSM)
+
+
+def plots_update_views():
+    global plots
+    for noofplots in range(1, len(plots)):
+        plots[noofplots].setGeometry(plots[0].vb.sceneBoundingRect())
+        plots[noofplots].linkedViewChanged(plots[0].vb, plots[noofplots].XAxis)
 
 
 def find_element(axis, axisnumber, loopnumber, target):
@@ -57,7 +63,6 @@ class WinMain(QMainWindow, Ui_win_main):
         while not openedfile:
             openedfile = self.openfile()
         self.actionBeenden.triggered.connect(self.close)
-        self.action_ffnen.triggered.connect(self.openfile)
         self.actionVollbild.triggered.connect(self.toggle_fullscreen)
         self.actionOverview.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(0))
         self.overview_to_table.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(1))
@@ -79,6 +84,7 @@ class WinMain(QMainWindow, Ui_win_main):
         self.draw_map()
 
     def plot(self, plotdata, axis1, axis2, axis3):
+        global plots
         timedata = []
         dataoffset = 0
         timeformat = "%Y-%m-%d %H:%M:%S.%f"
@@ -163,6 +169,10 @@ class WinMain(QMainWindow, Ui_win_main):
             whichaxis = find_element(axis2, 1, loopall, whichaxis)
             whichaxis = find_element(axis3, 2, loopall, whichaxis)
 
+        if not axisneeded == 0:
+            plots_update_views()
+            plots[0].vb.sigResized.connect(plots_update_views)
+
         axiscounter = 0
 
         for elements in range(len(datatypes)):
@@ -243,10 +253,19 @@ class WinMain(QMainWindow, Ui_win_main):
             if int(datatypes[elements, 0]) == 2:
                 errortypes.append(datatypes[elements, 2])
 
+        if "Coordinates" in errortypes:
+            self.actionMap_View.setEnabled(0)
+            self.overview_to_map.setEnabled(0)
+            errortypes.remove("Coordinates")
+            msgBox = QMessageBox()
+            msgBox.setText("There are errors in your gps data, Map View is not available.")
+            msgBox.exec()
+
         if not errortypes == []:
             msgBox = QMessageBox()
             msgBox.setText("There are errors in your datafile, the following categories are not available for plotting: " + str(errortypes))
             msgBox.exec()
+
         data = tempdata
         self.table_tableview.resizeColumnsToContents()
         axis1init = []
@@ -254,9 +273,8 @@ class WinMain(QMainWindow, Ui_win_main):
         for initloop in range(len(datatypes)):
             if int(datatypes[initloop, 0]) == 1:
                 axis1init.append(initloop)
-        axis1init = [0, 1, 4]   # TODO cleanup here
-        axis2init = [1]
-        axis3init = [3]
+        axis2init = []
+        axis3init = []
         self.plot(data, axis1init, axis2init, axis3init)
         self.populate_table(data)
         fileopen = True
