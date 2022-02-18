@@ -106,11 +106,7 @@ class WinMain(QMainWindow, Ui_win_main):
         self.graphWidget.setAxisItems({'bottom': timeaxis})
         self.graphWidget.addLegend()
         dataoffset = 0
-        includedcategories = []
-
-        for elements in range(len(datatypes)):
-            if not datatypes[elements, 0] == "2":
-                includedcategories.append(datatypes[elements, 2])
+        plotcategories = datatypes[:, 2]
 
         if not np.array(axis3).size == 0:
             axisneeded = 3
@@ -128,17 +124,17 @@ class WinMain(QMainWindow, Ui_win_main):
         for axis1loop in range(len(axis1)):
             if not axis1loop == 0:
                 axis1label = axis1label + ", "
-            axis1label = axis1label + includedcategories[axis1[axis1loop]]
+            axis1label = axis1label + plotcategories[axis1[axis1loop]]
 
         for axis2loop in range(len(axis2)):
             if not axis2loop == 0:
                 axis2label = axis2label + ", "
-            axis2label = axis2label + includedcategories[axis2[axis2loop]]
+            axis2label = axis2label + plotcategories[axis2[axis2loop]]
 
         for axis3loop in range(len(axis3)):
             if not axis3loop == 0:
                 axis3label = axis3label + ", "
-            axis3label = axis3label + includedcategories[axis3[axis3loop]]
+            axis3label = axis3label + plotcategories[axis3[axis3loop]]
 
         if axisneeded >= 1:
             plots = [self.graphWidget.plotItem]
