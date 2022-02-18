@@ -20,6 +20,17 @@ context = staticmaps.Context()
 context.set_tile_provider(staticmaps.tile_provider_OSM)
 
 
+def find_element(axis, axisnumber, loopnumber, target):
+    for elements in axis:
+        try:
+            axis.index(loopnumber)
+            target.append(axisnumber)
+            break
+        except:
+            pass
+    return target
+
+
 def randcolor():
     color = [randint(0, 255), randint(0, 255), randint(0, 255)]
     return color
@@ -95,16 +106,15 @@ class WinMain(QMainWindow, Ui_win_main):
             if not datatypes[elements, 0] == "2":
                 includedcategories.append(datatypes[elements, 2])
 
-        if not axis3.size == 0:
+        if not np.array(axis3).size == 0:
             axisneeded = 3
-        elif not axis2.size == 0:
+        elif not np.array(axis2).size == 0:
             axisneeded = 2
-        elif not axis1.size == 0:
+        elif not np.array(axis1).size == 0:
             axisneeded = 1
         else:
             axisneeded = 0
 
-        print(axisneeded)
         axis1label = ""
         axis2label = ""
         axis3label = ""
@@ -133,7 +143,7 @@ class WinMain(QMainWindow, Ui_win_main):
                 plots[0].showAxis('right')
                 plots[0].scene().addItem(plots[1])
                 plots[0].getAxis('right').linkToView(plots[1])
-                plots[1].setXLink(self.graphWidget)
+                plots[1].setXLink(plots[0])
                 plots[0].getAxis('right').setLabel(axis2label)
 
                 if axisneeded == 3:
@@ -146,6 +156,15 @@ class WinMain(QMainWindow, Ui_win_main):
                     ax3.setZValue(-10000)
                     ax3.setLabel(axis3label)
 
+        whichaxis = []
+
+        for loopall in range(len(datatypes) - 1):
+            whichaxis = find_element(axis1, 0, loopall, whichaxis)
+            whichaxis = find_element(axis2, 1, loopall, whichaxis)
+            whichaxis = find_element(axis3, 2, loopall, whichaxis)
+
+        axiscounter = 0
+
         for elements in range(len(datatypes)):
             if int(datatypes[elements, 0]) == 2:
                 dataoffset = dataoffset + int(datatypes[elements, 1])
@@ -156,10 +175,13 @@ class WinMain(QMainWindow, Ui_win_main):
                     try:
                         indexnumber = int(datatypes[elements, subelements + 7]) - dataoffset
                         pen = pyqtgraph.mkPen(color=plotcolor[indexnumber + dataoffset])
-                        plots[0].plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber],
-                                              pen=pen, name=data[0][indexnumber + 1 + dataoffset])
+                        if whichaxis == 0:
+                            plots[whichaxis[axiscounter]].plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
+                        else:
+                            plots[whichaxis[axiscounter]].addItem(pyqtgraph.PlotCurveItem([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset]))
                     except:
                         pass
+                axiscounter += 1
 
     def populate_table(self, tabledata):
         self.table_tableview.setRowCount(len(tabledata)-1)
@@ -227,9 +249,14 @@ class WinMain(QMainWindow, Ui_win_main):
             msgBox.exec()
         data = tempdata
         self.table_tableview.resizeColumnsToContents()
-        axis1init = np.array([0, 1, 2, 3, 4, 5])
-        axis2init = np.array([])
-        axis3init = np.array([])
+        axis1init = []
+        # TODO fix behaviour on error
+        for initloop in range(len(datatypes)):
+            if int(datatypes[initloop, 0]) == 1:
+                axis1init.append(initloop)
+        axis1init = [0, 1, 4]   # TODO cleanup here
+        axis2init = [1]
+        axis3init = [3]
         self.plot(data, axis1init, axis2init, axis3init)
         self.populate_table(data)
         fileopen = True
