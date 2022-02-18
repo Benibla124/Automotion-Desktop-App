@@ -3,8 +3,10 @@ from datetime import datetime
 from random import randint
 
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QGraphicsPixmapItem, QGraphicsScene
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, \
+    QGraphicsPixmapItem, QGraphicsScene, QWidget
 from GUI.win_main import Ui_win_main
+from GUI.win_plotsettings import Ui_win_plotsettings
 import pyqtgraph
 import os
 import numpy as np
@@ -74,6 +76,7 @@ class WinMain(QMainWindow, Ui_win_main):
         self.MapLoadButton.clicked.connect(self.draw_map)
         self.styleSatellite.clicked.connect(self.map_satellite)
         self.styleMap.clicked.connect(self.map_map)
+        self.PlotSettings.clicked.connect(lambda: win_plotsettings.show())
 
     def map_satellite(self):
         context.set_tile_provider(staticmaps.tile_provider_ArcGISWorldImagery)
@@ -277,7 +280,49 @@ class WinMain(QMainWindow, Ui_win_main):
         return fileopen
 
 
+class WinPlotsettings(QWidget, Ui_win_plotsettings):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowTitle("Plot Settings")
+        for elements in range(len(datatypes)):
+            if not int(datatypes[elements, 0]) == 2:
+                self.dropdown_trace.addItem(datatypes[elements, 2])
+        self.visible_switch.clicked.connect(self.change_visibility)
+        self.dropdown_axis.setEnabled(0)
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Ok).clicked.connect(self.save_settings)
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Apply).clicked.connect(self.apply_settings)
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Cancel).clicked.connect(self.discard_settings)
+        self.dropdown_trace.currentIndexChanged.connect(self.refresh_visibibity_button)
+
+    def refresh_visibibity_button(self):
+        self.visible_switch.setChecked(datatypes[self.dropdown_trace.currentIndex(), 0])
+        if self.visible_switch.isChecked():
+            self.dropdown_axis.setEnabled(1)
+        else:
+            self.dropdown_axis.setEnabled(0)
+
+    def change_visibility(self):
+        if self.visible_switch.isChecked():
+            self.dropdown_axis.setEnabled(1)
+            datatypes[self.dropdown_trace.currentIndex(), 0] = 1
+        else:
+            self.dropdown_axis.setEnabled(0)
+            datatypes[self.dropdown_trace.currentIndex(), 0] = 0
+
+    def apply_settings(self):
+        win_main.plot(data)
+
+    def save_settings(self):
+        win_main.plot(data)
+        self.close()
+
+    def discard_settings(self):
+        self.close()
+
+
 desktop_app = QApplication()
 win_main = WinMain()
+win_plotsettings = WinPlotsettings()
 win_main.show()
 desktop_app.exec()

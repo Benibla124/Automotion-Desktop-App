@@ -10,11 +10,7 @@
 
 from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
 from PySide6.QtGui import (QAction, QFont)
-from PySide6.QtWidgets import (QAbstractScrollArea, QGraphicsView, QHBoxLayout,
-                               QLabel, QMenu,
-                               QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
-                               QStackedWidget, QTableWidget, QVBoxLayout,
-                               QWidget, QAbstractItemView)
+from PySide6.QtWidgets import (QAbstractScrollArea, QGraphicsView, QHBoxLayout, QLabel, QMenu, QMenuBar, QPushButton, QSizePolicy, QSpacerItem, QStackedWidget, QTableWidget, QVBoxLayout, QWidget, QAbstractItemView)
 
 from pyqtgraph import PlotWidget
 
@@ -135,6 +131,11 @@ class Ui_win_main(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
 
+        self.PlotSettings = QPushButton(self.view_plotview)
+        self.PlotSettings.setObjectName(u"PlotSettings")
+
+        self.horizontalLayout_2.addWidget(self.PlotSettings)
+
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_2)
 
@@ -195,7 +196,7 @@ class Ui_win_main(object):
         win_main.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(win_main)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1200, 19))
+        self.menubar.setGeometry(QRect(0, 0, 1200, 20))
         self.menuDatei = QMenu(self.menubar)
         self.menuDatei.setObjectName(u"menuDatei")
         self.menuFenster = QMenu(self.menubar)
@@ -204,8 +205,6 @@ class Ui_win_main(object):
 
         self.menubar.addAction(self.menuDatei.menuAction())
         self.menubar.addAction(self.menuFenster.menuAction())
-        self.menuDatei.addAction(self.action_ffnen)
-        self.menuDatei.addSeparator()
         self.menuDatei.addAction(self.actionBeenden)
         self.menuFenster.addAction(self.actionVollbild)
         self.menuFenster.addSeparator()
@@ -258,9 +257,10 @@ class Ui_win_main(object):
         self.overview_to_map.setText(QCoreApplication.translate("win_main", u"Map View", None))
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
+        self.PlotSettings.setText(QCoreApplication.translate("win_main", u"Plot Settings", None))
         self.lab_mapview.setText(QCoreApplication.translate("win_main", u"Map View", None))
         self.styleSatellite.setText(QCoreApplication.translate("win_main", u"Satellite ", None))
-        self.styleMap.setText(QCoreApplication.translate("win_main", u"Map", None))
+        self.styleMap.setText(QCoreApplication.translate("win_main", u"OpenStreetMap", None))
         self.MapLoadButton.setText(QCoreApplication.translate("win_main", u"Draw the map (needs an active internet connection)", None))
         self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"File", None))
         self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Window", None))

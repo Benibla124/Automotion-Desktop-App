@@ -170,6 +170,13 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QPushButton" name="PlotSettings">
+            <property name="text">
+             <string>Plot Settings</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -260,15 +267,13 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDatei">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="action_ffnen"/>
-    <addaction name="separator"/>
     <addaction name="actionBeenden"/>
    </widget>
    <widget class="QMenu" name="menuFenster">
