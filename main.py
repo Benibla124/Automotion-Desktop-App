@@ -1,10 +1,19 @@
+# TODO add "Save as" for map view
+# TODO don't spawn a terminal window
+# TODO check screen res for map view
+# TODO allow zoom & pan on map view
+# TODO bring back "open file"
+# TODO close all child windows on main window close
+
+# TODO properly clear PlotWidget (graphView)
+
 from csv import reader
 from datetime import datetime
 from random import randint
 
+from PySide6.QtCore import QDir
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, \
-    QGraphicsPixmapItem, QGraphicsScene, QWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QGraphicsPixmapItem, QGraphicsScene, QWidget
 from GUI.win_main import Ui_win_main
 from GUI.win_plotsettings import Ui_win_plotsettings
 import pyqtgraph
@@ -15,11 +24,13 @@ import staticmaps
 windowtitle = "RC-Car Viewer"
 data = []
 plots = []
+a1 = []
+a2 = []
+a3 = []
 plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "darkorange", "lime", "pink", "grey"])
 datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [0, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
 context = staticmaps.Context()
 context.set_tile_provider(staticmaps.tile_provider_OSM)
-
 
 def plots_update_views():
     global plots
@@ -233,7 +244,7 @@ class WinMain(QMainWindow, Ui_win_main):
         self.MapLoadButton.setVisible(1)
         self.styleSatellite.setVisible(0)
         self.styleMap.setVisible(0)
-        filepath = QFileDialog.getOpenFileName(self, self.tr("Open Data"), "/home/blacher", self.tr("*.txt *.csv"))
+        filepath = QFileDialog.getOpenFileName(self, self.tr("Open Data"), QDir.homePath(), self.tr("*.txt *.csv"))
         try:
             datafile = open(filepath[0], 'r')
         except:
@@ -269,14 +280,13 @@ class WinMain(QMainWindow, Ui_win_main):
 
         data = tempdata
         self.table_tableview.resizeColumnsToContents()
-        axis1init = []
+        global a1, a2, a3
         for initloop in range(len(datatypes)):
             if int(datatypes[initloop, 0]) == 1:
-                axis1init.append(initloop)
-        axis1init = [0, 4]
-        axis2init = [1]
-        axis3init = [3]
-        self.plot(data, axis1init, axis2init, axis3init)
+                a1.append(initloop)
+        a2 = []
+        a3 = []
+        self.plot(data, a1, a2, a3)
         self.populate_table(data)
         fileopen = True
         return fileopen
@@ -287,9 +297,15 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle("Plot Settings")
+        includingerrors = False
         for elements in range(len(datatypes) - 1):
-            if not int(datatypes[elements, 0]) == 2:
-                self.dropdown_trace.addItem(datatypes[elements, 2])
+            self.dropdown_trace.addItem(datatypes[elements, 2])
+            if int(datatypes[elements, 0]) == 2:
+                self.dropdown_trace.model().item(elements).setEnabled(False)
+                includingerrors = True
+
+        if includingerrors == True:
+            self.dropdown_trace.setCurrentIndex(3)
         self.dropdown_axis.addItem("Axis 1")
         self.dropdown_axis.addItem("Axis 2")
         self.dropdown_axis.addItem("Axis 3")
@@ -299,7 +315,31 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
         self.plotsettings_buttons.button(self.plotsettings_buttons.Apply).clicked.connect(self.apply_settings)
         self.plotsettings_buttons.button(self.plotsettings_buttons.Cancel).clicked.connect(self.discard_settings)
         self.dropdown_trace.currentIndexChanged.connect(self.refresh_visibility_button)
+        self.dropdown_axis.currentIndexChanged.connect(self.axis_switch)
         self.refresh_visibility_button()
+
+    def axis_switch(self):
+        global a1, a2, a3
+        try:
+            a1.remove(self.dropdown_trace.currentIndex())
+        except:
+            pass
+        try:
+            a2.remove(self.dropdown_trace.currentIndex())
+        except:
+            pass
+        try:
+            a3.remove(self.dropdown_trace.currentIndex())
+        except:
+            pass
+
+        if self.visible_switch.isChecked():
+            if self.dropdown_axis.currentIndex() == 0:
+                a1.append(self.dropdown_trace.currentIndex())
+            elif self.dropdown_axis.currentIndex() == 1:
+                a2.append(self.dropdown_trace.currentIndex())
+            elif self.dropdown_axis.currentIndex() == 2:
+                a3.append(self.dropdown_trace.currentIndex())
 
     def refresh_visibility_button(self):
         self.visible_switch.setChecked(int(datatypes[self.dropdown_trace.currentIndex(), 0]))
@@ -307,6 +347,21 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
             self.dropdown_axis.setEnabled(1)
         else:
             self.dropdown_axis.setEnabled(0)
+        try:
+            a1.index(self.dropdown_trace.currentIndex())
+            self.dropdown_axis.setCurrentIndex(0)
+        except:
+            pass
+        try:
+            a2.index(self.dropdown_trace.currentIndex())
+            self.dropdown_axis.setCurrentIndex(1)
+        except:
+            pass
+        try:
+            a3.index(self.dropdown_trace.currentIndex())
+            self.dropdown_axis.setCurrentIndex(2)
+        except:
+            pass
 
     def change_visibility(self):
         if self.visible_switch.isChecked():
@@ -315,12 +370,13 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
         else:
             self.dropdown_axis.setEnabled(0)
             datatypes[self.dropdown_trace.currentIndex(), 0] = 0
+        self.axis_switch()
 
     def apply_settings(self):
-        win_main.plot(data)
+        win_main.plot(data, a1, a2, a3)
 
     def save_settings(self):
-        win_main.plot(data)
+        win_main.plot(data, a1, a2, a3)
         self.close()
 
     def discard_settings(self):
