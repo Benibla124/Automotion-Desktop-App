@@ -10,7 +10,7 @@
 
 from PySide6.QtCore import (QCoreApplication, QMetaObject, QSize, Qt)
 from PySide6.QtGui import (QFont)
-from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialogButtonBox, QHBoxLayout, QSizePolicy, QSpacerItem, QVBoxLayout)
+from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialogButtonBox, QHBoxLayout, QLabel, QSizePolicy, QSpacerItem, QVBoxLayout)
 
 class Ui_win_plotsettings(object):
     def setupUi(self, win_plotsettings):
@@ -59,6 +59,16 @@ class Ui_win_plotsettings(object):
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.label = QLabel(win_plotsettings)
+        self.label.setObjectName(u"label")
+        font1 = QFont()
+        font1.setBold(False)
+        font1.setStrikeOut(False)
+        font1.setKerning(True)
+        self.label.setFont(font1)
+
+        self.horizontalLayout_2.addWidget(self.label)
+
         self.dropdown_axis = QComboBox(win_plotsettings)
         self.dropdown_axis.setObjectName(u"dropdown_axis")
 
@@ -87,5 +97,6 @@ class Ui_win_plotsettings(object):
     def retranslateUi(self, win_plotsettings):
         win_plotsettings.setWindowTitle(QCoreApplication.translate("win_plotsettings", u"Form", None))
         self.visible_switch.setText(QCoreApplication.translate("win_plotsettings", u"Visible", None))
+        self.label.setText(QCoreApplication.translate("win_plotsettings", u"Axis:", None))
     # retranslateUi
 

@@ -15,7 +15,7 @@ import staticmaps
 windowtitle = "RC-Car Viewer"
 data = []
 plots = []
-plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "aqua", "lime", "pink", "grey"])
+plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "darkorange", "lime", "pink", "grey"])
 datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [0, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
 context = staticmaps.Context()
 context.set_tile_provider(staticmaps.tile_provider_OSM)
@@ -107,7 +107,7 @@ class WinMain(QMainWindow, Ui_win_main):
         timeaxis = pyqtgraph.DateAxisItem()
         self.graphWidget.clear()
         self.graphWidget.setAxisItems({'bottom': timeaxis})
-        self.graphWidget.addLegend()
+        legend = self.graphWidget.addLegend()
         dataoffset = 0
         plotcategories = datatypes[:, 2]
 
@@ -184,10 +184,12 @@ class WinMain(QMainWindow, Ui_win_main):
                     try:
                         indexnumber = int(datatypes[elements, subelements + 7]) - dataoffset
                         pen = pyqtgraph.mkPen(color=plotcolor[indexnumber + dataoffset])
-                        if whichaxis == 0:
+                        if whichaxis[axiscounter] == 0:
                             plots[whichaxis[axiscounter]].plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
                         else:
-                            plots[whichaxis[axiscounter]].addItem(pyqtgraph.PlotCurveItem([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset]))
+                            curve = pyqtgraph.PlotCurveItem([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
+                            legend.addItem(curve, curve.name())
+                            plots[whichaxis[axiscounter]].addItem(curve)
                     except:
                         pass
                 axiscounter += 1
@@ -268,12 +270,12 @@ class WinMain(QMainWindow, Ui_win_main):
         data = tempdata
         self.table_tableview.resizeColumnsToContents()
         axis1init = []
-        # TODO fix behaviour on error
         for initloop in range(len(datatypes)):
             if int(datatypes[initloop, 0]) == 1:
                 axis1init.append(initloop)
-        axis2init = []
-        axis3init = []
+        axis1init = [0, 4]
+        axis2init = [1]
+        axis3init = [3]
         self.plot(data, axis1init, axis2init, axis3init)
         self.populate_table(data)
         fileopen = True
@@ -285,18 +287,22 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle("Plot Settings")
-        for elements in range(len(datatypes)):
+        for elements in range(len(datatypes) - 1):
             if not int(datatypes[elements, 0]) == 2:
                 self.dropdown_trace.addItem(datatypes[elements, 2])
+        self.dropdown_axis.addItem("Axis 1")
+        self.dropdown_axis.addItem("Axis 2")
+        self.dropdown_axis.addItem("Axis 3")
         self.visible_switch.clicked.connect(self.change_visibility)
         self.dropdown_axis.setEnabled(0)
         self.plotsettings_buttons.button(self.plotsettings_buttons.Ok).clicked.connect(self.save_settings)
         self.plotsettings_buttons.button(self.plotsettings_buttons.Apply).clicked.connect(self.apply_settings)
         self.plotsettings_buttons.button(self.plotsettings_buttons.Cancel).clicked.connect(self.discard_settings)
-        self.dropdown_trace.currentIndexChanged.connect(self.refresh_visibibity_button)
+        self.dropdown_trace.currentIndexChanged.connect(self.refresh_visibility_button)
+        self.refresh_visibility_button()
 
-    def refresh_visibibity_button(self):
-        self.visible_switch.setChecked(datatypes[self.dropdown_trace.currentIndex(), 0])
+    def refresh_visibility_button(self):
+        self.visible_switch.setChecked(int(datatypes[self.dropdown_trace.currentIndex(), 0]))
         if self.visible_switch.isChecked():
             self.dropdown_axis.setEnabled(1)
         else:

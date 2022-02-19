@@ -96,6 +96,20 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <bold>false</bold>
+         <strikeout>false</strikeout>
+         <kerning>true</kerning>
+        </font>
+       </property>
+       <property name="text">
+        <string>Axis:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QComboBox" name="dropdown_axis"/>
      </item>
     </layout>
