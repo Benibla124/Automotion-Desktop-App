@@ -1,4 +1,3 @@
-# TODO don't spawn a terminal window
 # TODO check screen res for map view
 # TODO allow zoom & pan on map view
 # TODO close all child windows on main window close
@@ -95,9 +94,10 @@ class WinMain(QMainWindow, Ui_win_main):
     def save_map(self):
         savepath = QFileDialog.getSaveFileName(self, "Save Location", QDir.homePath(), "*.svg")
         path = savepath[0]
-        if not path[-4:] == ".svg":
-            path = path + ".svg"
-        copy(os.getcwd() + "/temp/map_tmp.svg", path)
+        if not path == "":
+            if not path[-4:] == ".svg":
+                path = path + ".svg"
+            copy(os.getcwd() + "/temp/map_tmp.svg", path)
 
     def map_satellite(self):
         context.set_tile_provider(staticmaps.tile_provider_ArcGISWorldImagery)
