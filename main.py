@@ -1,12 +1,8 @@
-# TODO add "Save as" for map view
 # TODO don't spawn a terminal window
 # TODO check screen res for map view
 # TODO allow zoom & pan on map view
-# TODO fix plotsettings on "open file"
+# TODO fix datatypes, plotcolor on "open file"
 # TODO close all child windows on main window close
-# TODO Dropdown position for disabled items
-
-# TODO (feedback needed) resize graph on edit
 
 from csv import reader
 from datetime import datetime
@@ -21,6 +17,7 @@ import pyqtgraph
 import os
 import numpy as np
 import staticmaps
+from shutil import copy
 
 windowtitle = "RC-Car Viewer"
 plotinitialized = False
@@ -90,7 +87,16 @@ class WinMain(QMainWindow, Ui_win_main):
         self.MapLoadButton.clicked.connect(self.draw_map)
         self.styleSatellite.clicked.connect(self.map_satellite)
         self.styleMap.clicked.connect(self.map_map)
+        self.saveImage.clicked.connect(self.save_map)
         self.PlotSettings.clicked.connect(lambda: win_plotsettings.show_window())
+
+    def save_map(self):
+        savepath = QFileDialog.getSaveFileName(self, "Save Location", QDir.homePath(), "*.svg")
+        path = savepath[0]
+        if not path[-4:] == ".svg":
+            path = path + ".svg"
+        copy(os.getcwd() + "/temp/map_tmp.svg", path)
+
 
     def map_satellite(self):
         context.set_tile_provider(staticmaps.tile_provider_ArcGISWorldImagery)
@@ -220,6 +226,7 @@ class WinMain(QMainWindow, Ui_win_main):
         map_scene.addItem(map_item)
         self.MapLoadButton.setVisible(0)
         self.mapdisplay.setVisible(1)
+        self.saveImage.setVisible(1)
         self.styleSatellite.setVisible(1)
         self.styleMap.setVisible(1)
         self.mapdisplay.setScene(map_scene)
@@ -232,6 +239,7 @@ class WinMain(QMainWindow, Ui_win_main):
 
     def openfile(self):
         self.mapdisplay.setVisible(0)
+        self.saveImage.setVisible(0)
         self.MapLoadButton.setVisible(1)
         self.styleSatellite.setVisible(0)
         self.styleMap.setVisible(0)

@@ -8,9 +8,14 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect,
+                            Qt)
 from PySide6.QtGui import (QAction, QFont)
-from PySide6.QtWidgets import (QAbstractScrollArea, QGraphicsView, QHBoxLayout, QLabel, QMenu, QMenuBar, QPushButton, QSizePolicy, QSpacerItem, QStackedWidget, QTableWidget, QVBoxLayout, QWidget, QAbstractItemView)
+from PySide6.QtWidgets import (QAbstractScrollArea, QGraphicsView, QHBoxLayout,
+                               QLabel, QMenu,
+                               QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
+                               QStackedWidget, QTableWidget, QVBoxLayout,
+                               QWidget, QAbstractItemView)
 
 from pyqtgraph import PlotWidget
 
@@ -153,6 +158,11 @@ class Ui_win_main(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.saveImage = QPushButton(self.view_mapview)
+        self.saveImage.setObjectName(u"saveImage")
+
+        self.horizontalLayout_3.addWidget(self.saveImage)
+
         self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_3)
@@ -266,6 +276,7 @@ class Ui_win_main(object):
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.PlotSettings.setText(QCoreApplication.translate("win_main", u"Plot Settings", None))
+        self.saveImage.setText(QCoreApplication.translate("win_main", u"Save Image", None))
         self.lab_mapview.setText(QCoreApplication.translate("win_main", u"Map View", None))
         self.styleSatellite.setText(QCoreApplication.translate("win_main", u"Satellite ", None))
         self.styleMap.setText(QCoreApplication.translate("win_main", u"OpenStreetMap", None))
