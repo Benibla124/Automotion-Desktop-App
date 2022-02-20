@@ -2,10 +2,11 @@
 # TODO don't spawn a terminal window
 # TODO check screen res for map view
 # TODO allow zoom & pan on map view
-# TODO bring back "open file"
+# TODO fix plotsettings on "open file"
 # TODO close all child windows on main window close
+# TODO Dropdown position for disabled items
 
-# TODO properly clear PlotWidget (graphView)
+# TODO (feedback needed) resize graph on edit
 
 from csv import reader
 from datetime import datetime
@@ -22,6 +23,7 @@ import numpy as np
 import staticmaps
 
 windowtitle = "RC-Car Viewer"
+plotinitialized = False
 data = []
 plots = []
 a1 = []
@@ -34,7 +36,7 @@ context.set_tile_provider(staticmaps.tile_provider_OSM)
 
 def plots_update_views():
     global plots
-    for noofplots in range(1, len(plots)):
+    for noofplots in range(1, len(plots) - 1):
         plots[noofplots].setGeometry(plots[0].vb.sceneBoundingRect())
         plots[noofplots].linkedViewChanged(plots[0].vb, plots[noofplots].XAxis)
 
@@ -84,10 +86,11 @@ class WinMain(QMainWindow, Ui_win_main):
         self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))
         self.overview_to_map.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(3))
         self.actionMap_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(3))
+        self.actionOpen.triggered.connect(self.openfile)
         self.MapLoadButton.clicked.connect(self.draw_map)
         self.styleSatellite.clicked.connect(self.map_satellite)
         self.styleMap.clicked.connect(self.map_map)
-        self.PlotSettings.clicked.connect(lambda: win_plotsettings.show())
+        self.PlotSettings.clicked.connect(lambda: win_plotsettings.show_window())
 
     def map_satellite(self):
         context.set_tile_provider(staticmaps.tile_provider_ArcGISWorldImagery)
@@ -98,7 +101,7 @@ class WinMain(QMainWindow, Ui_win_main):
         self.draw_map()
 
     def plot(self, plotdata, axis1, axis2, axis3):
-        global plots
+        global plots, plotinitialized, ax3
         timedata = []
         dataoffset = 0
         timeformat = "%Y-%m-%d %H:%M:%S.%f"
@@ -116,25 +119,15 @@ class WinMain(QMainWindow, Ui_win_main):
 
         plotdata = np.asarray(plotdata, dtype=float)
         timeaxis = pyqtgraph.DateAxisItem()
-        self.graphWidget.clear()
+        for plot_item in plots:
+            plot_item.clear()
         self.graphWidget.setAxisItems({'bottom': timeaxis})
-        legend = self.graphWidget.addLegend()
+
         dataoffset = 0
         plotcategories = datatypes[:, 2]
-
-        if not np.array(axis3).size == 0:
-            axisneeded = 3
-        elif not np.array(axis2).size == 0:
-            axisneeded = 2
-        elif not np.array(axis1).size == 0:
-            axisneeded = 1
-        else:
-            axisneeded = 0
-
         axis1label = ""
         axis2label = ""
         axis3label = ""
-
         for axis1loop in range(len(axis1)):
             if not axis1loop == 0:
                 axis1label = axis1label + ", "
@@ -150,27 +143,26 @@ class WinMain(QMainWindow, Ui_win_main):
                 axis3label = axis3label + ", "
             axis3label = axis3label + plotcategories[axis3[axis3loop]]
 
-        if axisneeded >= 1:
+        if not plotinitialized:
             plots = [self.graphWidget.plotItem]
-            plots[0].setLabels(left=axis1label)
+            plots.append(pyqtgraph.ViewBox())
+            plots[0].showAxis('right')
+            plots[0].scene().addItem(plots[1])
+            plots[0].getAxis('right').linkToView(plots[1])
+            plots[1].setXLink(plots[0])
+            plots.append(pyqtgraph.ViewBox())
+            ax3 = pyqtgraph.AxisItem('right')
+            plots[0].layout.addItem(ax3, 2, 3)
+            plots[0].scene().addItem(plots[2])
+            ax3.linkToView(plots[2])
+            plots[2].setXLink(plots[0])
+            ax3.setZValue(-10000)
+            plots.append(self.graphWidget.addLegend())
+            plotinitialized = True
 
-            if axisneeded >= 2:
-                plots.append(pyqtgraph.ViewBox())
-                plots[0].showAxis('right')
-                plots[0].scene().addItem(plots[1])
-                plots[0].getAxis('right').linkToView(plots[1])
-                plots[1].setXLink(plots[0])
-                plots[0].getAxis('right').setLabel(axis2label)
-
-                if axisneeded == 3:
-                    plots.append(pyqtgraph.ViewBox())
-                    ax3 = pyqtgraph.AxisItem('right')
-                    plots[0].layout.addItem(ax3, 2, 3)
-                    plots[0].scene().addItem(plots[2])
-                    ax3.linkToView(plots[2])
-                    plots[2].setXLink(plots[0])
-                    ax3.setZValue(-10000)
-                    ax3.setLabel(axis3label)
+        plots[0].getAxis('right').setLabel(axis2label)
+        plots[0].setLabels(left=axis1label)
+        ax3.setLabel(axis3label)
 
         whichaxis = []
 
@@ -179,9 +171,8 @@ class WinMain(QMainWindow, Ui_win_main):
             whichaxis = find_element(axis2, 1, loopall, whichaxis)
             whichaxis = find_element(axis3, 2, loopall, whichaxis)
 
-        if not axisneeded == 0:
-            plots_update_views()
-            plots[0].vb.sigResized.connect(plots_update_views)
+        plots_update_views()
+        plots[0].vb.sigResized.connect(plots_update_views)
 
         axiscounter = 0
 
@@ -199,7 +190,7 @@ class WinMain(QMainWindow, Ui_win_main):
                             plots[whichaxis[axiscounter]].plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
                         else:
                             curve = pyqtgraph.PlotCurveItem([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
-                            legend.addItem(curve, curve.name())
+                            plots[3].addItem(curve, curve.name())
                             plots[whichaxis[axiscounter]].addItem(curve)
                     except:
                         pass
@@ -281,6 +272,7 @@ class WinMain(QMainWindow, Ui_win_main):
         data = tempdata
         self.table_tableview.resizeColumnsToContents()
         global a1, a2, a3
+        a1 = []
         for initloop in range(len(datatypes)):
             if int(datatypes[initloop, 0]) == 1:
                 a1.append(initloop)
@@ -297,6 +289,18 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle("Plot Settings")
+        self.dropdown_axis.addItem("Axis 1")
+        self.dropdown_axis.addItem("Axis 2")
+        self.dropdown_axis.addItem("Axis 3")
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Ok).clicked.connect(self.save_settings)
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Apply).clicked.connect(self.apply_settings)
+        self.plotsettings_buttons.button(self.plotsettings_buttons.Cancel).clicked.connect(self.discard_settings)
+        self.dropdown_trace.currentIndexChanged.connect(self.refresh_visibility_button)
+        self.dropdown_axis.currentIndexChanged.connect(self.axis_switch)
+        self.visible_switch.clicked.connect(self.change_visibility)
+
+    def show_window(self):
+        self.dropdown_trace.clear()
         includingerrors = False
         for elements in range(len(datatypes) - 1):
             self.dropdown_trace.addItem(datatypes[elements, 2])
@@ -306,17 +310,9 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
 
         if includingerrors == True:
             self.dropdown_trace.setCurrentIndex(3)
-        self.dropdown_axis.addItem("Axis 1")
-        self.dropdown_axis.addItem("Axis 2")
-        self.dropdown_axis.addItem("Axis 3")
-        self.visible_switch.clicked.connect(self.change_visibility)
         self.dropdown_axis.setEnabled(0)
-        self.plotsettings_buttons.button(self.plotsettings_buttons.Ok).clicked.connect(self.save_settings)
-        self.plotsettings_buttons.button(self.plotsettings_buttons.Apply).clicked.connect(self.apply_settings)
-        self.plotsettings_buttons.button(self.plotsettings_buttons.Cancel).clicked.connect(self.discard_settings)
-        self.dropdown_trace.currentIndexChanged.connect(self.refresh_visibility_button)
-        self.dropdown_axis.currentIndexChanged.connect(self.axis_switch)
         self.refresh_visibility_button()
+        self.show()
 
     def axis_switch(self):
         global a1, a2, a3
@@ -347,21 +343,28 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
             self.dropdown_axis.setEnabled(1)
         else:
             self.dropdown_axis.setEnabled(0)
+        axisfound = False
         try:
             a1.index(self.dropdown_trace.currentIndex())
             self.dropdown_axis.setCurrentIndex(0)
+            axisfound = True
         except:
             pass
         try:
             a2.index(self.dropdown_trace.currentIndex())
             self.dropdown_axis.setCurrentIndex(1)
+            axisfound = True
         except:
             pass
         try:
             a3.index(self.dropdown_trace.currentIndex())
             self.dropdown_axis.setCurrentIndex(2)
+            axisfound = True
         except:
             pass
+
+        if not axisfound:
+            self.dropdown_axis.setCurrentIndex(0)
 
     def change_visibility(self):
         if self.visible_switch.isChecked():
