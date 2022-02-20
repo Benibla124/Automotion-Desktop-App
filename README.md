@@ -1,2 +1,2 @@
-# RC-Car-Desktop
-Diplomarbeit RC-Car Desktop-App
+# AutomotionRC-Desktop
+AutomotionRC Desktop-App
