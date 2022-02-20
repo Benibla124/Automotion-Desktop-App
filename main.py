@@ -1,8 +1,9 @@
 # TODO don't spawn a terminal window
 # TODO check screen res for map view
 # TODO allow zoom & pan on map view
-# TODO fix datatypes, plotcolor on "open file"
 # TODO close all child windows on main window close
+
+# TODO fix datatypes, plotcolor on "open file"
 
 from csv import reader
 from datetime import datetime
@@ -30,6 +31,7 @@ plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "whit
 datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [0, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
 context = staticmaps.Context()
 context.set_tile_provider(staticmaps.tile_provider_OSM)
+
 
 def plots_update_views():
     global plots
@@ -96,7 +98,6 @@ class WinMain(QMainWindow, Ui_win_main):
         if not path[-4:] == ".svg":
             path = path + ".svg"
         copy(os.getcwd() + "/temp/map_tmp.svg", path)
-
 
     def map_satellite(self):
         context.set_tile_provider(staticmaps.tile_provider_ArcGISWorldImagery)
@@ -216,8 +217,7 @@ class WinMain(QMainWindow, Ui_win_main):
     def draw_map(self):
         gps_data = data[1:, int(datatypes[5, 7]) + 1:]
         gps_data = np.asarray(gps_data, dtype=float)
-        context.add_object(
-        staticmaps.Line([staticmaps.create_latlng(lat, lng) for lat, lng in gps_data], width=1))
+        context.add_object(staticmaps.Line([staticmaps.create_latlng(lat, lng) for lat, lng in gps_data], width=1))
         image = context.render_svg(1800, 900, 19)
         image.saveas("temp/map_tmp.svg")
         map_pixmap = QPixmap("temp/map_tmp.svg")
@@ -238,12 +238,13 @@ class WinMain(QMainWindow, Ui_win_main):
             self.showFullScreen()
 
     def openfile(self):
+        self.pageswitcher.setCurrentIndex(0)
         self.mapdisplay.setVisible(0)
         self.saveImage.setVisible(0)
         self.MapLoadButton.setVisible(1)
         self.styleSatellite.setVisible(0)
         self.styleMap.setVisible(0)
-        filepath = QFileDialog.getOpenFileName(self, self.tr("Open Data"), QDir.homePath(), self.tr("*.txt *.csv"))
+        filepath = QFileDialog.getOpenFileName(self, "Open Data", QDir.homePath(), "*.txt *.csv")
         try:
             datafile = open(filepath[0], 'r')
         except:
@@ -268,14 +269,14 @@ class WinMain(QMainWindow, Ui_win_main):
             self.actionMap_View.setEnabled(0)
             self.overview_to_map.setEnabled(0)
             errortypes.remove("Coordinates")
-            msgBox = QMessageBox()
-            msgBox.setText("There are errors in your gps data, Map View is not available.")
-            msgBox.exec()
+            msg_box = QMessageBox()
+            msg_box.setText("There are errors in your gps data, Map View is not available.")
+            msg_box.exec()
 
         if not errortypes == []:
-            msgBox = QMessageBox()
-            msgBox.setText("There are errors in your datafile, the following categories are not available for plotting: " + str(errortypes))
-            msgBox.exec()
+            msg_box = QMessageBox()
+            msg_box.setText("There are errors in your datafile, the following categories are not available for plotting: " + str(errortypes))
+            msg_box.exec()
 
         data = tempdata
         self.table_tableview.resizeColumnsToContents()
@@ -316,7 +317,7 @@ class WinPlotsettings(QWidget, Ui_win_plotsettings):
                 self.dropdown_trace.model().item(elements).setEnabled(False)
                 includingerrors = True
 
-        if includingerrors == True:
+        if includingerrors:
             self.dropdown_trace.setCurrentIndex(3)
         self.dropdown_axis.setEnabled(0)
         self.refresh_visibility_button()
