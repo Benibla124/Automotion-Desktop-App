@@ -2,7 +2,7 @@
 # TODO allow zoom & pan on map view
 # TODO close all child windows on main window close
 
-# TODO fix datatypes, plotcolor on "open file"
+# TODO fix plot view on file reopen
 
 from csv import reader
 from datetime import datetime
@@ -26,8 +26,10 @@ plots = []
 a1 = []
 a2 = []
 a3 = []
-plotcolor = np.array(["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "darkorange", "lime", "pink", "grey"])
-datatypes = np.array([[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""], [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""], [0, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""], [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10], [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]])
+OG_PLOTCOLOR = ["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "darkorange", "lime", "pink", "saddlebrown", "grey"]
+OG_DATATYPES = [[1, 3, "Orientation", "roll", "pitch", "yaw", "", "", 0, 1, 2, "", ""], [1, 3, "Acceleration", "ax", "ay", "az", "", "", 3, 4, 5, "", ""], [0, 1, "Temperature", "Temp", "", "", "", "", 6, "", "", "", ""], [1, 5, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", "rpm_motor", 7, 8, 9, 10, 11], [1, 1, "Velocity", "vel_ms", "", "", "", "", 12, "", "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", "", 13, 14, "", "", ""]]
+plotcolor = np.array(OG_PLOTCOLOR)
+datatypes = np.array(OG_DATATYPES)
 context = staticmaps.Context()
 context.set_tile_provider(staticmaps.tile_provider_OSM)
 
@@ -238,6 +240,9 @@ class WinMain(QMainWindow, Ui_win_main):
             self.showFullScreen()
 
     def openfile(self):
+        global data, plotcolor, datatypes, OG_DATATYPES, OG_PLOTCOLOR
+        plotcolor = np.array(OG_PLOTCOLOR)
+        datatypes = np.array(OG_DATATYPES)
         self.pageswitcher.setCurrentIndex(0)
         self.mapdisplay.setVisible(0)
         self.saveImage.setVisible(0)
@@ -249,8 +254,6 @@ class WinMain(QMainWindow, Ui_win_main):
             datafile = open(filepath[0], 'r')
         except:
             exit()
-        global data
-        global plotcolor
         data = np.array(list(reader(datafile)))
         tempdata = data
         for yloop in range(len(data)):
