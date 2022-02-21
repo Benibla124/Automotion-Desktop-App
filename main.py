@@ -119,9 +119,9 @@ class WinMain(QMainWindow, Ui_win_main):
         plotdata = plotdata[1:, 1:]
         for elements in range(len(datatypes)):
             if int(datatypes[elements, 0]) == 2:
-                for subelements in range(len(datatypes[elements, 7:])):
+                for subelements in range(len(datatypes[elements, 8:])):
                     try:
-                        plotdata = np.delete(plotdata, int(datatypes[elements, subelements + 7]) - dataoffset, 1)
+                        plotdata = np.delete(plotdata, int(datatypes[elements, subelements + 8]) - dataoffset, 1)
                         dataoffset += 1
                     except:
                         pass
@@ -191,9 +191,9 @@ class WinMain(QMainWindow, Ui_win_main):
             elif int(datatypes[elements, 0]) == 0:
                 pass
             elif int(datatypes[elements, 0]) == 1:
-                for subelements in range(len(datatypes[elements, 7:])):
+                for subelements in range(len(datatypes[elements, 8:])):
                     try:
-                        indexnumber = int(datatypes[elements, subelements + 7]) - dataoffset
+                        indexnumber = int(datatypes[elements, subelements + 8]) - dataoffset
                         pen = pyqtgraph.mkPen(color=plotcolor[indexnumber + dataoffset])
                         if whichaxis[axiscounter] == 0:
                             plots[whichaxis[axiscounter]].plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
@@ -217,7 +217,7 @@ class WinMain(QMainWindow, Ui_win_main):
         self.table_tableview.resizeColumnsToContents()
 
     def draw_map(self):
-        gps_data = data[1:, int(datatypes[5, 7]) + 1:]
+        gps_data = data[1:, int(datatypes[5, 8]):]
         gps_data = np.asarray(gps_data, dtype=float)
         context.add_object(staticmaps.Line([staticmaps.create_latlng(lat, lng) for lat, lng in gps_data], width=1))
         image = context.render_svg(1800, 900, 19)
@@ -260,7 +260,7 @@ class WinMain(QMainWindow, Ui_win_main):
             for xloop in range(len(data[yloop])):
                 if data[yloop][xloop] == "error":
                     for typeloop in range(len(datatypes)):
-                        if str(xloop-1) in datatypes[typeloop, 7:]:
+                        if str(xloop-1) in datatypes[typeloop, 8:]:
                             datatypes[typeloop, 0] = 2
 
         errortypes = []
