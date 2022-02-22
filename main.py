@@ -1,16 +1,10 @@
-# TODO check screen res for map view
-# TODO allow zoom & pan on map view
-# TODO close all child windows on main window close
-
-# TODO fix plot view on file reopen
-
 from csv import reader
 from datetime import datetime
 from random import randint
 
 from PySide6.QtCore import QDir
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QGraphicsPixmapItem, QGraphicsScene, QWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QGraphicsPixmapItem, QGraphicsScene, QWidget, QGraphicsView
 from GUI.win_main import Ui_win_main
 from GUI.win_plotsettings import Ui_win_plotsettings
 import pyqtgraph
@@ -74,6 +68,7 @@ class WinMain(QMainWindow, Ui_win_main):
         car_scene = QGraphicsScene(self)
         car_scene.addItem(car_item)
         self.main_Car.setScene(car_scene)
+        self.mapdisplay.setDragMode(QGraphicsView.ScrollHandDrag)
         openedfile = False
         while not openedfile:
             openedfile = self.openfile()
@@ -86,12 +81,14 @@ class WinMain(QMainWindow, Ui_win_main):
         self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))
         self.overview_to_map.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(3))
         self.actionMap_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(3))
-        self.actionOpen.triggered.connect(self.openfile)
         self.MapLoadButton.clicked.connect(self.draw_map)
         self.styleSatellite.clicked.connect(self.map_satellite)
         self.styleMap.clicked.connect(self.map_map)
         self.saveImage.clicked.connect(self.save_map)
         self.PlotSettings.clicked.connect(lambda: win_plotsettings.show_window())
+
+    def closeEvent(self, event):
+        win_plotsettings.close()
 
     def save_map(self):
         savepath = QFileDialog.getSaveFileName(self, "Save Location", QDir.homePath(), "*.svg")

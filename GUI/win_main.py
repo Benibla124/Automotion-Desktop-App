@@ -217,8 +217,6 @@ class Ui_win_main(object):
 
         self.menubar.addAction(self.menuDatei.menuAction())
         self.menubar.addAction(self.menuFenster.menuAction())
-        self.menuDatei.addAction(self.actionOpen)
-        self.menuDatei.addSeparator()
         self.menuDatei.addAction(self.actionBeenden)
         self.menuFenster.addAction(self.actionVollbild)
         self.menuFenster.addSeparator()
@@ -284,4 +282,5 @@ class Ui_win_main(object):
         self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"File", None))
         self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Window", None))
     # retranslateUi
+
 
