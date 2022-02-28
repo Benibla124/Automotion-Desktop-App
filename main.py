@@ -1,110 +1,111 @@
-from csv import reader
-from datetime import datetime
-from random import randint
+from csv import reader              # used for datafile opening
+from datetime import datetime       # used for time axis operations
 
-from PySide6.QtCore import QDir
-from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QGraphicsPixmapItem, QGraphicsScene, QWidget, QGraphicsView
-from GUI.win_main import Ui_win_main
-from GUI.win_plotsettings import Ui_win_plotsettings
-import pyqtgraph
-import os
-import numpy as np
-import staticmaps
-from shutil import copy
+from PySide6.QtCore import QDir                                                 # PySide --> Qt Windows
+from PySide6.QtGui import QPixmap                                               # PySide --> Qt Windows
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QGraphicsPixmapItem, QGraphicsScene, QWidget, QGraphicsView    # PySide --> Qt Windows
+from GUI.win_main import Ui_win_main                                            # GUI.win_main --> Main Window
+from GUI.win_plotsettings import Ui_win_plotsettings                            # GUI.win_plotsettings --> Plotsettings Window
+from pyqtgraph import DateAxisItem, ViewBox, AxisItem, mkPen, PlotCurveItem     # Graph Items
+from numpy import delete, array, asarray                                        # extended array operations
+from staticmaps import Context, tile_provider_OSM, tile_provider_ArcGISWorldImagery, Line, create_latlng    # map rendering
+from shutil import copy                                                         # File copy operations
+import os                                                                       # path operations
 
-windowtitle = "RC-Car Viewer"
-plotinitialized = False
-data = []
-plots = []
-a1 = []
-a2 = []
-a3 = []
-OG_PLOTCOLOR = ["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "darkorange", "lime", "pink", "saddlebrown", "grey"]
-OG_DATATYPES = [[1, 3, "Orientation", "roll", "pitch", "yaw", "", "", 0, 1, 2, "", ""], [1, 3, "Acceleration", "ax", "ay", "az", "", "", 3, 4, 5, "", ""], [0, 1, "Temperature", "Temp", "", "", "", "", 6, "", "", "", ""], [1, 5, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", "rpm_motor", 7, 8, 9, 10, 11], [1, 1, "Velocity", "vel_ms", "", "", "", "", 12, "", "", "", ""], [0, 2, "Coordinates", "lat", "lng", "", "", "", 13, 14, "", "", ""]]
-plotcolor = np.array(OG_PLOTCOLOR)
-datatypes = np.array(OG_DATATYPES)
-context = staticmaps.Context()
-context.set_tile_provider(staticmaps.tile_provider_OSM)
+windowtitle = "RC-Car Viewer"   # window title
+plotinitialized = False         # check for first time plotting
+data = []                       # init data array
+plots = []                      # init plots array
+a1 = []                         # init axis array
+a2 = []                         # init axis array
+a3 = []                         # init axis array
+OG_PLOTCOLOR = ["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "darkorange", "lime", "pink", "saddlebrown", "grey"]    # init original plotcolors
+OG_DATATYPES = [[1, 3, "Orientation", "roll", "pitch", "yaw", "", "", 0, 1, 2, "", ""],     # init datatypes
+                [1, 3, "Acceleration", "ax", "ay", "az", "", "", 3, 4, 5, "", ""],
+                [0, 1, "Temperature", "Temp", "", "", "", "", 6, "", "", "", ""],
+                [1, 5, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", "rpm_motor", 7, 8, 9, 10, 11],
+                [1, 1, "Velocity", "vel_ms", "", "", "", "", 12, "", "", "", ""],
+                [0, 2, "Coordinates", "lat", "lng", "", "", "", 13, 14, "", "", ""]]
+plotcolor = array(OG_PLOTCOLOR)     # save plotcolor as numpy array of OG_PLOTCOLOR
+datatypes = array(OG_DATATYPES)     # save datatypes as numpy array of OG_DATATYPES
+context = Context()                 # create Context (for map rendering)
+context.set_tile_provider(tile_provider_OSM)    # set default tile provider (OSM)
 
 
+# used for updating the different plot axes
 def plots_update_views():
-    global plots
-    for noofplots in range(1, len(plots) - 1):
-        plots[noofplots].setGeometry(plots[0].vb.sceneBoundingRect())
-        plots[noofplots].linkedViewChanged(plots[0].vb, plots[noofplots].XAxis)
+    global plots                                                                        # use global array
+    for noofplots in range(1, len(plots) - 1):                                          # loop through the array beginning with the second item
+        plots[noofplots].setGeometry(plots[0].vb.sceneBoundingRect())                   # resize
+        plots[noofplots].linkedViewChanged(plots[0].vb, plots[noofplots].XAxis)         # resize
 
 
+# used for finding an element in an axis
 def find_element(axis, axisnumber, loopnumber, target):
-    for elements in axis:
+    for elements in axis:               # loop through the axis
         try:
-            axis.index(loopnumber)
-            target.append(axisnumber)
-            break
+            axis.index(loopnumber)      # if the desired element exists at the current index, no error is reported
+            target.append(axisnumber)   # the number of the axis gets appended to the target array
+            break                       # break the loop, the item has been found
         except:
-            pass
-    return target
+            pass                        # if the item doesn't exist at the current index, pass
+    return target                       # return the target array
 
 
-def randcolor():
-    color = [randint(0, 255), randint(0, 255), randint(0, 255)]
-    return color
-
-
-class WinMain(QMainWindow, Ui_win_main):
-    def __init__(self):
-        super().__init__()
-        self.setupUi(self)
-        self.setWindowTitle(windowtitle)
-        if not os.path.exists('temp'):  # If the temp path doesn't exit, create it
+class WinMain(QMainWindow, Ui_win_main):        # Main-Window class
+    def __init__(self):                         # init-stuff
+        super().__init__()                      # more init-stuff
+        self.setupUi(self)                      # set up own ui
+        self.setWindowTitle(windowtitle)        # set window title
+        if not os.path.exists('temp'):          # If the temp path doesn't exit, create it
             os.makedirs('temp')
         try:
-            for filename in os.listdir("./temp/"):
+            for filename in os.listdir("./temp/"):      # clear temp dir
                 os.remove("./temp/" + filename)
         except:
             pass
-        car_pixmap = QPixmap("GUI/Car_Render.png")
-        car_item = QGraphicsPixmapItem(car_pixmap)
-        car_scene = QGraphicsScene(self)
-        car_scene.addItem(car_item)
-        self.main_Car.setScene(car_scene)
-        self.mapdisplay.setDragMode(QGraphicsView.ScrollHandDrag)
-        openedfile = False
-        while not openedfile:
-            openedfile = self.openfile()
-        self.actionBeenden.triggered.connect(self.close)
-        self.actionVollbild.triggered.connect(self.toggle_fullscreen)
-        self.actionOverview.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(0))
-        self.overview_to_table.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(1))
-        self.actionTable_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(1))
-        self.overview_to_plot.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(2))
-        self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))
-        self.overview_to_map.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(3))
-        self.actionMap_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(3))
-        self.MapLoadButton.clicked.connect(self.draw_map)
-        self.styleSatellite.clicked.connect(self.map_satellite)
-        self.styleMap.clicked.connect(self.map_map)
-        self.saveImage.clicked.connect(self.save_map)
-        self.PlotSettings.clicked.connect(lambda: win_plotsettings.show_window())
+        car_pixmap = QPixmap("GUI/Car_Render.png")  # create pixmap from the rendered image
+        car_item = QGraphicsPixmapItem(car_pixmap)  # create item from the pixmap
+        car_scene = QGraphicsScene(self)            # create scene
+        car_scene.addItem(car_item)                 # add item to scene
+        self.main_Car.setScene(car_scene)           # set created scene as scene for main_Car
+        self.mapdisplay.setDragMode(QGraphicsView.ScrollHandDrag)   # enable dragging for mapdisplay
+        openedfile = False                                                                      # default to false
+        while not openedfile:                                                                   # loop openfile
+            openedfile = self.openfile()                                                        # open the file
+        self.actionBeenden.triggered.connect(self.close)                                        # connect File --> close to closing the window
+        self.actionVollbild.triggered.connect(self.toggle_fullscreen)                           # connect Window --> Fullscreen to fullscreen
+        self.actionOverview.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(0))     # connect Window --> Overview to Overview
+        self.overview_to_table.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(1))    # connect Overview Table Button to table view
+        self.actionTable_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(1))   # connect Window --> Table View to table view
+        self.overview_to_plot.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(2))     # connect Overview Plot Button to plot view
+        self.actionPlot_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(2))    # connect Window --> Plot View to plot view
+        self.overview_to_map.clicked.connect(lambda: self.pageswitcher.setCurrentIndex(3))      # connect Overview Map Button to map view
+        self.actionMap_View.triggered.connect(lambda: self.pageswitcher.setCurrentIndex(3))     # connect Window --> Map View to map view
+        self.MapLoadButton.clicked.connect(self.draw_map)                                       # connect "Load Map" to loading the map
+        self.styleSatellite.clicked.connect(self.map_satellite)                                 # connect "Satellite Style Button" to changing the map style
+        self.styleMap.clicked.connect(self.map_map)                                             # connect "OSM Style Button" to changing the map style
+        self.saveImage.clicked.connect(self.save_map)                                           # connect "save image" button to saving the image
+        self.PlotSettings.clicked.connect(lambda: win_plotsettings.show_window())               # connect "PlotSettings Button" to showing the plotsettings window
 
-    def closeEvent(self, event):
-        win_plotsettings.close()
+    def closeEvent(self, event):    # used for closing all window on main window exit
+        win_plotsettings.close()    # close plotsettings
 
-    def save_map(self):
-        savepath = QFileDialog.getSaveFileName(self, "Save Location", QDir.homePath(), "*.svg")
-        path = savepath[0]
-        if not path == "":
-            if not path[-4:] == ".svg":
-                path = path + ".svg"
-            copy(os.getcwd() + "/temp/map_tmp.svg", path)
+    def save_map(self):             # used for saving the map
+        savepath = QFileDialog.getSaveFileName(self, "Save Location", QDir.homePath(), "*.svg")     # spawn dialog window for choosing the save path
+        path = savepath[0]      # get the path only
+        if not path == "":      # if the path isn't empty, check for extension
+            if not path[-4:] == ".svg":                     # if the last 4 chars are not ".svg", add the extension
+                path = path + ".svg"                        # add extension
+            copy(os.getcwd() + "/temp/map_tmp.svg", path)   # copy the image to the location
 
-    def map_satellite(self):
-        context.set_tile_provider(staticmaps.tile_provider_ArcGISWorldImagery)
-        self.draw_map()
+    def map_map(self):    # used for switching to OSM mode
+        context.set_tile_provider(tile_provider_OSM)    # set OSM as the tile provider
+        self.draw_map()     # redraw the map
 
-    def map_map(self):
-        context.set_tile_provider(staticmaps.tile_provider_OSM)
-        self.draw_map()
+    def map_satellite(self):          # used for switching to satellite mode
+        context.set_tile_provider(tile_provider_ArcGISWorldImagery)     # set ArcGISWorldImagery as the tile provider
+        self.draw_map()     # redraw the map
 
     def plot(self, plotdata, axis1, axis2, axis3):
         global plots, plotinitialized, ax3
@@ -118,13 +119,13 @@ class WinMain(QMainWindow, Ui_win_main):
             if int(datatypes[elements, 0]) == 2:
                 for subelements in range(len(datatypes[elements, 8:])):
                     try:
-                        plotdata = np.delete(plotdata, int(datatypes[elements, subelements + 8]) - dataoffset, 1)
+                        plotdata = delete(plotdata, int(datatypes[elements, subelements + 8]) - dataoffset, 1)
                         dataoffset += 1
                     except:
                         pass
 
-        plotdata = np.asarray(plotdata, dtype=float)
-        timeaxis = pyqtgraph.DateAxisItem()
+        plotdata = asarray(plotdata, dtype=float)
+        timeaxis = DateAxisItem()
         for plot_item in plots:
             plot_item.clear()
         self.graphWidget.setAxisItems({'bottom': timeaxis})
@@ -151,13 +152,13 @@ class WinMain(QMainWindow, Ui_win_main):
 
         if not plotinitialized:
             plots = [self.graphWidget.plotItem]
-            plots.append(pyqtgraph.ViewBox())
+            plots.append(ViewBox())
             plots[0].showAxis('right')
             plots[0].scene().addItem(plots[1])
             plots[0].getAxis('right').linkToView(plots[1])
             plots[1].setXLink(plots[0])
-            plots.append(pyqtgraph.ViewBox())
-            ax3 = pyqtgraph.AxisItem('right')
+            plots.append(ViewBox())
+            ax3 = AxisItem('right')
             plots[0].layout.addItem(ax3, 2, 3)
             plots[0].scene().addItem(plots[2])
             ax3.linkToView(plots[2])
@@ -191,11 +192,11 @@ class WinMain(QMainWindow, Ui_win_main):
                 for subelements in range(len(datatypes[elements, 8:])):
                     try:
                         indexnumber = int(datatypes[elements, subelements + 8]) - dataoffset
-                        pen = pyqtgraph.mkPen(color=plotcolor[indexnumber + dataoffset])
+                        pen = mkPen(color=plotcolor[indexnumber + dataoffset])
                         if whichaxis[axiscounter] == 0:
                             plots[whichaxis[axiscounter]].plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
                         else:
-                            curve = pyqtgraph.PlotCurveItem([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
+                            curve = PlotCurveItem([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
                             plots[3].addItem(curve, curve.name())
                             plots[whichaxis[axiscounter]].addItem(curve)
                     except:
@@ -215,8 +216,8 @@ class WinMain(QMainWindow, Ui_win_main):
 
     def draw_map(self):
         gps_data = data[1:, int(datatypes[5, 8]):]
-        gps_data = np.asarray(gps_data, dtype=float)
-        context.add_object(staticmaps.Line([staticmaps.create_latlng(lat, lng) for lat, lng in gps_data], width=1))
+        gps_data = asarray(gps_data, dtype=float)
+        context.add_object(Line([create_latlng(lat, lng) for lat, lng in gps_data], width=1))
         image = context.render_svg(1800, 900, 19)
         image.saveas("temp/map_tmp.svg")
         map_pixmap = QPixmap("temp/map_tmp.svg")
@@ -238,8 +239,8 @@ class WinMain(QMainWindow, Ui_win_main):
 
     def openfile(self):
         global data, plotcolor, datatypes, OG_DATATYPES, OG_PLOTCOLOR
-        plotcolor = np.array(OG_PLOTCOLOR)
-        datatypes = np.array(OG_DATATYPES)
+        plotcolor = array(OG_PLOTCOLOR)
+        datatypes = array(OG_DATATYPES)
         self.pageswitcher.setCurrentIndex(0)
         self.mapdisplay.setVisible(0)
         self.saveImage.setVisible(0)
@@ -251,7 +252,7 @@ class WinMain(QMainWindow, Ui_win_main):
             datafile = open(filepath[0], 'r')
         except:
             exit()
-        data = np.array(list(reader(datafile)))
+        data = array(list(reader(datafile)))
         tempdata = data
         for yloop in range(len(data)):
             for xloop in range(len(data[yloop])):
