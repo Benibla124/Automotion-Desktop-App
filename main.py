@@ -19,13 +19,13 @@ plots = []                      # init plots array
 a1 = []                         # init axis array
 a2 = []                         # init axis array
 a3 = []                         # init axis array
-OG_PLOTCOLOR = ["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "darkorange", "lime", "pink", "saddlebrown", "grey"]    # init original plotcolors
-OG_DATATYPES = [[1, 3, "Orientation", "roll", "pitch", "yaw", "", "", 0, 1, 2, "", ""],     # init datatypes
-                [1, 3, "Acceleration", "ax", "ay", "az", "", "", 3, 4, 5, "", ""],
-                [0, 1, "Temperature", "Temp", "", "", "", "", 6, "", "", "", ""],
-                [1, 5, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", "rpm_motor", 7, 8, 9, 10, 11],
-                [1, 1, "Velocity", "vel_ms", "", "", "", "", 12, "", "", "", ""],
-                [0, 2, "Coordinates", "lat", "lng", "", "", "", 13, 14, "", "", ""]]
+OG_PLOTCOLOR = ["red", "blue", "yellow", "green", "magenta", "cyan", "white", "purple", "darkorange", "lime", "pink", "grey"]    # init original plotcolors
+OG_DATATYPES = [[1, 3, "Orientation", "roll", "pitch", "yaw", "", 0, 1, 2, ""],
+                [1, 3, "Acceleration", "ax", "ay", "az", "", 3, 4, 5, ""],
+                [0, 1, "Temperature", "Temp", "", "", "", 6, "", "", ""],
+                [1, 4, "Rotational Velocity", "rpm_rear_l", "rpm_rear_r", "rpm_front_l", "rpm_front_r", 7, 8, 9, 10],
+                [1, 1, "Velocity", "vel_ms", "", "", "", 11, "", "", ""],
+                [0, 2, "Coordinates", "lat", "lng", "", "", 12, 13, "", ""]]
 plotcolor = array(OG_PLOTCOLOR)     # save plotcolor as numpy array of OG_PLOTCOLOR
 datatypes = array(OG_DATATYPES)     # save datatypes as numpy array of OG_DATATYPES
 context = Context()                 # create Context (for map rendering)
@@ -117,9 +117,9 @@ class WinMain(QMainWindow, Ui_win_main):        # Main-Window class
         plotdata = plotdata[1:, 1:]
         for elements in range(len(datatypes)):
             if int(datatypes[elements, 0]) == 2:
-                for subelements in range(len(datatypes[elements, 8:])):
+                for subelements in range(len(datatypes[elements, 7:])):
                     try:
-                        plotdata = delete(plotdata, int(datatypes[elements, subelements + 8]) - dataoffset, 1)
+                        plotdata = delete(plotdata, int(datatypes[elements, subelements + 7]) - dataoffset, 1)
                         dataoffset += 1
                     except:
                         pass
@@ -189,9 +189,9 @@ class WinMain(QMainWindow, Ui_win_main):        # Main-Window class
             elif int(datatypes[elements, 0]) == 0:
                 pass
             elif int(datatypes[elements, 0]) == 1:
-                for subelements in range(len(datatypes[elements, 8:])):
+                for subelements in range(len(datatypes[elements, 7:])):
                     try:
-                        indexnumber = int(datatypes[elements, subelements + 8]) - dataoffset
+                        indexnumber = int(datatypes[elements, subelements + 7]) - dataoffset
                         pen = mkPen(color=plotcolor[indexnumber + dataoffset])
                         if whichaxis[axiscounter] == 0:
                             plots[whichaxis[axiscounter]].plot([xitem.timestamp() for xitem in timedata], plotdata[:, indexnumber], pen=pen, name=data[0][indexnumber + 1 + dataoffset])
@@ -215,7 +215,7 @@ class WinMain(QMainWindow, Ui_win_main):        # Main-Window class
         self.table_tableview.resizeColumnsToContents()
 
     def draw_map(self):
-        gps_data = data[1:, int(datatypes[5, 8]):]
+        gps_data = data[1:, int(datatypes[5, 7]):]
         gps_data = asarray(gps_data, dtype=float)
         context.add_object(Line([create_latlng(lat, lng) for lat, lng in gps_data], width=1))
         image = context.render_svg(1800, 900, 19)
@@ -258,7 +258,7 @@ class WinMain(QMainWindow, Ui_win_main):        # Main-Window class
             for xloop in range(len(data[yloop])):
                 if data[yloop][xloop] == "error":
                     for typeloop in range(len(datatypes)):
-                        if str(xloop-1) in datatypes[typeloop, 8:]:
+                        if str(xloop-1) in datatypes[typeloop, 7:]:
                             datatypes[typeloop, 0] = 2
 
         errortypes = []
