@@ -1,2 +1,2 @@
-# AutomotionRC-Desktop
-AutomotionRC Desktop-App
+# Automotion-Desktop
+Automotion Desktop-App
