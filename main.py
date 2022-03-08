@@ -215,7 +215,7 @@ class WinMain(QMainWindow, Ui_win_main):        # Main-Window class
         self.table_tableview.resizeColumnsToContents()
 
     def draw_map(self):
-        gps_data = data[1:, int(datatypes[5, 7]):]
+        gps_data = data[1:, int(datatypes[5, 7])+1:]
         gps_data = asarray(gps_data, dtype=float)
         context.add_object(Line([create_latlng(lat, lng) for lat, lng in gps_data], width=1))
         image = context.render_svg(1800, 900, 19)
