@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (QAbstractScrollArea, QGraphicsView, QHBoxLayout,
                                QLabel, QMenu,
                                QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
                                QStackedWidget, QTableWidget, QVBoxLayout,
-                               QWidget)
+                               QWidget, QAbstractItemView)
 
 from pyqtgraph import PlotWidget
 import GUI.Car_Render
