@@ -15,17 +15,16 @@ from PySide6.QtWidgets import (QAbstractScrollArea, QGraphicsView, QHBoxLayout,
                                QLabel, QMenu,
                                QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
                                QStackedWidget, QTableWidget, QVBoxLayout,
-                               QWidget, QAbstractItemView)
+                               QWidget)
 
 from pyqtgraph import PlotWidget
 import GUI.Car_Render
-
 
 class Ui_win_main(object):
     def setupUi(self, win_main):
         if not win_main.objectName():
             win_main.setObjectName(u"win_main")
-        win_main.resize(1956, 1212)
+        win_main.resize(1636, 1032)
         self.actionBeenden = QAction(win_main)
         self.actionBeenden.setObjectName(u"actionBeenden")
         self.action_ffnen = QAction(win_main)
@@ -212,7 +211,7 @@ class Ui_win_main(object):
         win_main.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(win_main)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1956, 20))
+        self.menubar.setGeometry(QRect(0, 0, 1636, 20))
         self.menuDatei = QMenu(self.menubar)
         self.menuDatei.setObjectName(u"menuDatei")
         self.menuFenster = QMenu(self.menubar)
