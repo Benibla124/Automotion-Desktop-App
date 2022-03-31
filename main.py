@@ -12,7 +12,7 @@ from staticmaps import Context, tile_provider_OSM, tile_provider_ArcGISWorldImag
 from shutil import copy                                                         # File copy operations
 import os                                                                       # path operations
 
-windowtitle = "RC-Car Viewer"   # window title
+windowtitle = "Automotion Desktop App"   # window title
 plotinitialized = False         # check for first time plotting
 data = []                       # init data array
 plots = []                      # init plots array

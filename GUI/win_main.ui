@@ -30,7 +30,7 @@
            </font>
           </property>
           <property name="text">
-           <string>RC-Car Data Analysis App</string>
+           <string>Automotion Desktop App</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

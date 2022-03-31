@@ -270,7 +270,7 @@ class Ui_win_main(object):
 #if QT_CONFIG(shortcut)
         self.actionOpen.setShortcut(QCoreApplication.translate("win_main", u"Ctrl+O", None))
 #endif // QT_CONFIG(shortcut)
-        self.label.setText(QCoreApplication.translate("win_main", u"RC-Car Data Analysis App", None))
+        self.label.setText(QCoreApplication.translate("win_main", u"Automotion Desktop App", None))
         self.overview_to_table.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.overview_to_plot.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.overview_to_map.setText(QCoreApplication.translate("win_main", u"Map View", None))
