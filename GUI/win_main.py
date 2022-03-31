@@ -10,7 +10,7 @@
 
 from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect,
                             Qt)
-from PySide6.QtGui import (QAction, QFont)
+from PySide6.QtGui import (QAction, QFont, QPixmap)
 from PySide6.QtWidgets import (QAbstractScrollArea, QGraphicsView, QHBoxLayout,
                                QLabel, QMenu,
                                QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
@@ -18,12 +18,14 @@ from PySide6.QtWidgets import (QAbstractScrollArea, QGraphicsView, QHBoxLayout,
                                QWidget, QAbstractItemView)
 
 from pyqtgraph import PlotWidget
+import GUI.Car_Render
+
 
 class Ui_win_main(object):
     def setupUi(self, win_main):
         if not win_main.objectName():
             win_main.setObjectName(u"win_main")
-        win_main.resize(1200, 800)
+        win_main.resize(1956, 1212)
         self.actionBeenden = QAction(win_main)
         self.actionBeenden.setObjectName(u"actionBeenden")
         self.action_ffnen = QAction(win_main)
@@ -89,10 +91,12 @@ class Ui_win_main(object):
 
         self.verticalLayout_4.addLayout(self.horizontalLayout)
 
-        self.main_Car = QGraphicsView(self.view_overview)
-        self.main_Car.setObjectName(u"main_Car")
+        self.label_2 = QLabel(self.view_overview)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setPixmap(QPixmap(u":/Car/Car_Render.png"))
+        self.label_2.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_4.addWidget(self.main_Car)
+        self.verticalLayout_4.addWidget(self.label_2)
 
         self.pageswitcher.addWidget(self.view_overview)
         self.view_table = QWidget()
@@ -208,7 +212,7 @@ class Ui_win_main(object):
         win_main.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(win_main)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1200, 20))
+        self.menubar.setGeometry(QRect(0, 0, 1956, 20))
         self.menuDatei = QMenu(self.menubar)
         self.menuDatei.setObjectName(u"menuDatei")
         self.menuFenster = QMenu(self.menubar)
@@ -271,6 +275,7 @@ class Ui_win_main(object):
         self.overview_to_table.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.overview_to_plot.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.overview_to_map.setText(QCoreApplication.translate("win_main", u"Map View", None))
+        self.label_2.setText("")
         self.lab_tableview.setText(QCoreApplication.translate("win_main", u"Table View", None))
         self.lab_plotview.setText(QCoreApplication.translate("win_main", u"Plot View", None))
         self.PlotSettings.setText(QCoreApplication.translate("win_main", u"Plot Settings", None))
@@ -282,5 +287,4 @@ class Ui_win_main(object):
         self.menuDatei.setTitle(QCoreApplication.translate("win_main", u"File", None))
         self.menuFenster.setTitle(QCoreApplication.translate("win_main", u"Window", None))
     # retranslateUi
-
 

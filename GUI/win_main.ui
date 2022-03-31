@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>800</height>
+    <width>1956</width>
+    <height>1212</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -89,7 +89,17 @@
          </layout>
         </item>
         <item>
-         <widget class="QGraphicsView" name="main_Car"/>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="Car_Render.qrc">:/Car/Car_Render.png</pixmap>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -273,7 +283,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
+     <width>1956</width>
      <height>20</height>
     </rect>
    </property>
@@ -375,6 +385,8 @@
    <header>pyqtgraph</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="Car_Render.qrc"/>
+ </resources>
  <connections/>
 </ui>

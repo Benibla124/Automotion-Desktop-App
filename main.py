@@ -64,11 +64,6 @@ class WinMain(QMainWindow, Ui_win_main):        # Main-Window class
                 os.remove("./temp/" + filename)
         except:
             pass
-        car_pixmap = QPixmap("GUI/Car_Render.png")  # create pixmap from the rendered image
-        car_item = QGraphicsPixmapItem(car_pixmap)  # create item from the pixmap
-        car_scene = QGraphicsScene(self)            # create scene
-        car_scene.addItem(car_item)                 # add item to scene
-        self.main_Car.setScene(car_scene)           # set created scene as scene for main_Car
         self.mapdisplay.setDragMode(QGraphicsView.ScrollHandDrag)   # enable dragging for mapdisplay
         openedfile = False                                                                      # default to false
         while not openedfile:                                                                   # loop openfile
